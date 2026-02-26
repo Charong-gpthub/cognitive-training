@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>托兰斯创造力测验 - 认知能力训练</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .ttct-stage {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .ttct-box {
+            width: 100%;
+            max-width: 560px;
+            border: 1px solid #dce4ec;
+            border-radius: 10px;
+            background: #fff;
+            padding: 14px;
+        }
+
+        .ttct-figure {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 10px 0 14px 0;
+            min-height: 120px;
+        }
+
+        .ttct-field {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccd6df;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .ttct-field + .ttct-field {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <header class="game-header">
+            <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i> 返回大厅</a>
+            <h1>托兰斯创造力测验</h1>
+            <div class="score-board">
+                <span><i class="fas fa-list-ol"></i> 图形: <span id="progress">0</span>/6</span>
+                <span><i class="fas fa-stopwatch"></i> 时间: <span id="time">0s</span></span>
+                <span><i class="fas fa-pen"></i> 完成: <span id="done">0</span></span>
+            </div>
+        </header>
+
+        <div class="game-area">
+            <div class="instruction-overlay" id="start-screen">
+                <div class="instruction-content">
+                    <h2><i class="fas fa-pencil-alt"></i> 图形创造训练</h2>
+                    <p>观察给定抽象图形，为它命名并写一句创意描述。</p>
+                    <div class="rule-box">
+                        <h3>规则</h3>
+                        <ul>
+                            <li>每个图形写一个标题和一句描述。</li>
+                            <li>描述越具体、越新颖越好。</li>
+                            <li>共 6 题。</li>
+                        </ul>
+                    </div>
+                    <button class="start-btn" onclick="startGame()">开始任务</button>
+                </div>
+            </div>
+
+            <div id="ttct-panel" style="display:none;">
+                <div class="ttct-stage">
+                    <div class="ttct-box">
+                        <div class="ttct-figure" id="figure"></div>
+                        <input id="title-input" class="ttct-field" placeholder="给图形起个标题">
+                        <textarea id="desc-input" class="ttct-field" rows="4" placeholder="写一句创意描述"></textarea>
+                    </div>
+                    <div>
+                        <button class="btn primary" id="next-btn">提交并下一题</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-overlay" id="result-modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2><i class="fas fa-flag-checkered"></i> 任务完成</h2>
+                    </div>
+                    <div class="modal-body">
+                        <div class="result-stat">
+                            <span class="stat-label">完成度</span>
+                            <span class="stat-value highlight" id="result-completion">0%</span>
+                        </div>
+                        <div class="result-stat">
+                            <span class="stat-label">平均描述长度</span>
+                            <span class="stat-value" id="result-length">0</span>
+                        </div>
+                        <div class="result-stat">
+                            <span class="stat-label">标题词汇多样性</span>
+                            <span class="stat-value warning" id="result-diversity">0%</span>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn-primary" onclick="location.reload()">再试一次</button>
+                        <a href="index.html" class="btn-secondary">返回大厅</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="src/shared/training-results.js"></script>
+    <script src="torrance-creative.js"></script>
+</body>
+</html>

@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>赌徒谬误任务 - 认知能力训练</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .gf-history {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+            margin: 20px 0;
+        }
+
+        .gf-chip {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .gf-chip.h {
+            background: #2980b9;
+        }
+
+        .gf-chip.t {
+            background: #c0392b;
+        }
+
+        .gf-choice {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+
+        .gf-feedback {
+            margin-top: 16px;
+            text-align: center;
+            min-height: 22px;
+            color: #34495e;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <header class="game-header">
+            <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i> 返回大厅</a>
+            <h1>赌徒谬误任务</h1>
+            <div class="score-board">
+                <span><i class="fas fa-list-ol"></i> 回合: <span id="round">0</span>/20</span>
+                <span><i class="fas fa-check-circle"></i> 准确率: <span id="acc">0%</span></span>
+                <span><i class="fas fa-wave-square"></i> 连续后逆向预测率: <span id="anti-rate">0%</span></span>
+            </div>
+        </header>
+
+        <div class="game-area">
+            <div class="instruction-overlay" id="start-screen">
+                <div class="instruction-content">
+                    <h2><i class="fas fa-coins"></i> 随机性认知训练</h2>
+                    <p>判断下一次抛硬币的结果，体验“过去结果不会改变下一次随机事件概率”。</p>
+                    <div class="rule-box">
+                        <h3>规则</h3>
+                        <ul>
+                            <li>你会看到最近 6 次抛硬币结果。</li>
+                            <li>请选择你认为下一次会出现“正面(H)”还是“反面(T)”。</li>
+                            <li>系统统计你在长连串后是否倾向“反向预测”。</li>
+                        </ul>
+                    </div>
+                    <button class="start-btn" onclick="startGame()">开始任务</button>
+                </div>
+            </div>
+
+            <div id="gf-panel" style="display:none;">
+                <p style="text-align:center;">最近 6 次结果</p>
+                <div class="gf-history" id="history"></div>
+                <div class="gf-choice">
+                    <button class="btn primary" id="pick-h">预测正面 (H)</button>
+                    <button class="btn secondary" id="pick-t">预测反面 (T)</button>
+                </div>
+                <p class="gf-feedback" id="feedback"></p>
+            </div>
+
+            <div class="modal-overlay" id="result-modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2><i class="fas fa-flag-checkered"></i> 任务完成</h2>
+                    </div>
+                    <div class="modal-body">
+                        <div class="result-stat">
+                            <span class="stat-label">总体准确率</span>
+                            <span class="stat-value highlight" id="result-acc">0%</span>
+                        </div>
+                        <div class="result-stat">
+                            <span class="stat-label">长连串后逆向预测率</span>
+                            <span class="stat-value warning" id="result-anti">0%</span>
+                        </div>
+                        <p class="feedback-text" id="result-text"></p>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn-primary" onclick="location.reload()">再试一次</button>
+                        <a href="index.html" class="btn-secondary">返回大厅</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="src/shared/training-results.js"></script>
+    <script src="gambler-fallacy.js"></script>
+</body>
+</html>

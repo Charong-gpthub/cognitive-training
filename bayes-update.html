@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>贝叶斯更新任务 - 认知能力训练</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .bayes-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 16px;
+            border-left: 4px solid #16a085;
+        }
+
+        .bayes-input {
+            margin-top: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .bayes-input input {
+            width: 120px;
+            padding: 8px;
+            border: 1px solid #d0d7de;
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+
+        .bayes-feedback {
+            margin-top: 14px;
+            min-height: 22px;
+            color: #34495e;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <header class="game-header">
+            <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i> 返回大厅</a>
+            <h1>贝叶斯更新任务</h1>
+            <div class="score-board">
+                <span><i class="fas fa-list-ol"></i> 题目: <span id="progress">0/8</span></span>
+                <span><i class="fas fa-bullseye"></i> 近似正确率: <span id="accuracy">0%</span></span>
+                <span><i class="fas fa-ruler"></i> 平均误差: <span id="mae">0%</span></span>
+            </div>
+        </header>
+
+        <div class="game-area">
+            <div class="instruction-overlay" id="start-screen">
+                <div class="instruction-content">
+                    <h2><i class="fas fa-chart-bar"></i> 信念修正训练</h2>
+                    <p>根据先验概率与证据强度，估计假设 A 的后验概率。</p>
+                    <div class="rule-box">
+                        <h3>规则</h3>
+                        <ul>
+                            <li>每题给出：先验 P(A)、P(B)，及证据 E 在 A/B 下的出现概率。</li>
+                            <li>输入你估计的后验 P(A|E)（0-100）。</li>
+                            <li>误差 ≤ 5% 记为“近似正确”。</li>
+                        </ul>
+                    </div>
+                    <button class="start-btn" onclick="startGame()">开始任务</button>
+                </div>
+            </div>
+
+            <div id="bayes-panel" style="display:none;">
+                <div class="bayes-card" id="question"></div>
+                <div class="bayes-input">
+                    <label for="answer-input">你的估计 P(A|E):</label>
+                    <input id="answer-input" type="number" min="0" max="100" step="1" placeholder="0-100">
+                    <span>%</span>
+                    <button class="btn primary" id="submit-btn">提交</button>
+                </div>
+                <p class="bayes-feedback" id="feedback"></p>
+            </div>
+
+            <div class="modal-overlay" id="result-modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2><i class="fas fa-flag-checkered"></i> 任务完成</h2>
+                    </div>
+                    <div class="modal-body">
+                        <div class="result-stat">
+                            <span class="stat-label">近似正确率（±5%）</span>
+                            <span class="stat-value highlight" id="result-acc">0%</span>
+                        </div>
+                        <div class="result-stat">
+                            <span class="stat-label">平均绝对误差</span>
+                            <span class="stat-value warning" id="result-mae">0%</span>
+                        </div>
+                        <p class="feedback-text" id="result-text"></p>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn-primary" onclick="location.reload()">再试一次</button>
+                        <a href="index.html" class="btn-secondary">返回大厅</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="src/shared/training-results.js"></script>
+    <script src="bayes-update.js"></script>
+</body>
+</html>

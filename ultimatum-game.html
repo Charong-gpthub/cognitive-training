@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>最后通牒博弈 - 认知能力训练</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .ug-stage {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .ug-offer-box {
+            width: 100%;
+            max-width: 460px;
+            border: 1px solid #dce4ec;
+            border-radius: 12px;
+            background: #fff;
+            padding: 18px;
+            text-align: center;
+        }
+
+        .ug-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .ug-log {
+            width: 100%;
+            max-height: 220px;
+            overflow: auto;
+            border: 1px solid #e4eaf0;
+            border-radius: 8px;
+            padding: 10px;
+            background: #fff;
+            font-size: 0.95rem;
+        }
+
+        .ug-log p {
+            margin: 6px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <header class="game-header">
+            <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i> 返回大厅</a>
+            <h1>最后通牒博弈</h1>
+            <div class="score-board">
+                <span><i class="fas fa-list-ol"></i> 回合: <span id="round">0</span>/20</span>
+                <span><i class="fas fa-coins"></i> 总收益: <span id="earnings">0</span></span>
+                <span><i class="fas fa-check"></i> 接受率: <span id="accept-rate">0%</span></span>
+            </div>
+        </header>
+
+        <div class="game-area">
+            <div class="instruction-overlay" id="start-screen">
+                <div class="instruction-content">
+                    <h2><i class="fas fa-handshake"></i> 公平决策训练</h2>
+                    <p>你将收到对方给出的分配提议，决定“接受”还是“拒绝”。</p>
+                    <div class="rule-box">
+                        <h3>规则（总额 10 分）</h3>
+                        <ul>
+                            <li>接受：你得到提议给你的分数。</li>
+                            <li>拒绝：双方都得 0。</li>
+                            <li>观察你在公平与不公平提议下的决策模式。</li>
+                        </ul>
+                    </div>
+                    <button class="start-btn" onclick="startGame()">开始任务</button>
+                </div>
+            </div>
+
+            <div id="ug-panel" style="display:none;">
+                <div class="ug-stage">
+                    <div class="ug-offer-box">
+                        <p style="margin:0 0 8px 0;color:#7f8c8d;">当前提议</p>
+                        <h2 style="margin:0;" id="offer-text">对方给你 0 / 10</h2>
+                    </div>
+                    <div class="ug-actions">
+                        <button class="btn primary" id="accept-btn">接受</button>
+                        <button class="btn danger" id="reject-btn">拒绝</button>
+                    </div>
+                    <div class="ug-log" id="log"></div>
+                </div>
+            </div>
+
+            <div class="modal-overlay" id="result-modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2><i class="fas fa-flag-checkered"></i> 任务完成</h2>
+                    </div>
+                    <div class="modal-body">
+                        <div class="result-stat">
+                            <span class="stat-label">总收益</span>
+                            <span class="stat-value highlight" id="result-earnings">0</span>
+                        </div>
+                        <div class="result-stat">
+                            <span class="stat-label">公平提议接受率</span>
+                            <span class="stat-value" id="result-fair-rate">0%</span>
+                        </div>
+                        <div class="result-stat">
+                            <span class="stat-label">不公平提议接受率</span>
+                            <span class="stat-value warning" id="result-unfair-rate">0%</span>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn-primary" onclick="location.reload()">再试一次</button>
+                        <a href="index.html" class="btn-secondary">返回大厅</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="src/shared/training-results.js"></script>
+    <script src="ultimatum-game.js"></script>
+</body>
+</html>

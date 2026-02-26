@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>伦敦塔 - 认知能力训练</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .tol-layout {
+            width: 100%;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+
+        .tol-box {
+            border: 1px solid #dce4ec;
+            border-radius: 10px;
+            background: #fff;
+            padding: 12px;
+        }
+
+        .tol-box h3 {
+            margin: 0 0 10px 0;
+            color: #34495e;
+            font-size: 1rem;
+        }
+
+        .tol-pegs {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 10px;
+            min-height: 180px;
+        }
+
+        .tol-peg {
+            flex: 1;
+            border: 1px solid #d8e0e8;
+            border-radius: 8px;
+            min-height: 150px;
+            display: flex;
+            flex-direction: column-reverse;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 6px;
+            padding: 8px 6px;
+            background: #fbfcfe;
+            cursor: pointer;
+            position: relative;
+            transition: border-color 0.2s ease, transform 0.2s ease;
+        }
+
+        .tol-peg::before {
+            content: "";
+            position: absolute;
+            bottom: 8px;
+            width: 6px;
+            height: 110px;
+            border-radius: 4px;
+            background: #95a5a6;
+        }
+
+        .tol-peg.selected {
+            border-color: #3498db;
+            transform: translateY(-2px);
+        }
+
+        .tol-ball {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            border: 2px solid rgba(0, 0, 0, 0.12);
+            position: relative;
+            z-index: 1;
+        }
+
+        .tol-ball.red { background: #e74c3c; }
+        .tol-ball.blue { background: #3498db; }
+        .tol-ball.green { background: #2ecc71; }
+
+        .tol-hint {
+            margin: 10px 0 0 0;
+            min-height: 22px;
+            color: #34495e;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .tol-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <header class="game-header">
+            <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i> 返回大厅</a>
+            <h1>伦敦塔</h1>
+            <div class="score-board">
+                <span><i class="fas fa-list-ol"></i> 题目: <span id="problem">0</span>/5</span>
+                <span><i class="fas fa-arrows-alt"></i> 步数: <span id="moves">0</span></span>
+                <span><i class="fas fa-stopwatch"></i> 时间: <span id="time">0s</span></span>
+            </div>
+        </header>
+
+        <div class="game-area">
+            <div class="instruction-overlay" id="start-screen">
+                <div class="instruction-content">
+                    <h2><i class="fas fa-building"></i> 前瞻规划训练</h2>
+                    <p>将左侧起始布局变成右侧目标布局。每次只能移动一颗最上层球。</p>
+                    <div class="rule-box">
+                        <h3>规则</h3>
+                        <ul>
+                            <li>点击起始柱选择球，再点击目标柱完成移动。</li>
+                            <li>柱子容量分别为 3、2、1。</li>
+                            <li>尽量用更少步数完成题目。</li>
+                        </ul>
+                    </div>
+                    <button class="start-btn" onclick="startGame()">开始任务</button>
+                </div>
+            </div>
+
+            <div id="tol-panel" style="display:none;">
+                <div class="tol-layout">
+                    <div class="tol-box">
+                        <h3>你的布局</h3>
+                        <div class="tol-pegs" id="player-pegs"></div>
+                    </div>
+                    <div class="tol-box">
+                        <h3>目标布局</h3>
+                        <div class="tol-pegs" id="goal-pegs"></div>
+                    </div>
+                </div>
+                <p class="tol-hint" id="hint"></p>
+            </div>
+
+            <div class="modal-overlay" id="result-modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2><i class="fas fa-flag-checkered"></i> 任务完成</h2>
+                    </div>
+                    <div class="modal-body">
+                        <div class="result-stat">
+                            <span class="stat-label">平均每题步数</span>
+                            <span class="stat-value highlight" id="result-avg-moves">0</span>
+                        </div>
+                        <div class="result-stat">
+                            <span class="stat-label">最优达成率</span>
+                            <span class="stat-value" id="result-optimal">0%</span>
+                        </div>
+                        <div class="result-stat">
+                            <span class="stat-label">总用时</span>
+                            <span class="stat-value warning" id="result-time">0s</span>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn-primary" onclick="location.reload()">再试一次</button>
+                        <a href="index.html" class="btn-secondary">返回大厅</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="src/shared/training-results.js"></script>
+    <script src="london-tower.js"></script>
+</body>
+</html>

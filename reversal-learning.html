@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>反转学习任务 - 认知能力训练</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .rl-stage {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            align-items: center;
+        }
+
+        .rl-actions {
+            display: flex;
+            gap: 14px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .rl-choice {
+            width: 150px;
+            height: 90px;
+            border: 1px solid #d8e0e8;
+            border-radius: 12px;
+            background: #fff;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .rl-choice:hover {
+            transform: translateY(-2px);
+            border-color: #3498db;
+            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.08);
+        }
+
+        .rl-feedback {
+            min-height: 26px;
+            font-weight: 600;
+            color: #34495e;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <header class="game-header">
+            <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i> 返回大厅</a>
+            <h1>反转学习任务</h1>
+            <div class="score-board">
+                <span><i class="fas fa-list-ol"></i> 试次: <span id="trial">0</span>/40</span>
+                <span><i class="fas fa-coins"></i> 总收益: <span id="reward">0</span></span>
+                <span><i class="fas fa-bullseye"></i> 最优率: <span id="optimal-rate">0%</span></span>
+            </div>
+        </header>
+
+        <div class="game-area">
+            <div class="instruction-overlay" id="start-screen">
+                <div class="instruction-content">
+                    <h2><i class="fas fa-undo"></i> 奖励规则反转</h2>
+                    <p>在 A/B 两个选项中寻找高回报选项。中途系统会反转概率，请快速适应。</p>
+                    <div class="rule-box">
+                        <h3>规则</h3>
+                        <ul>
+                            <li>每轮选择 A 或 B。</li>
+                            <li>选择后会获得奖励反馈（+10 或 +0）。</li>
+                            <li>高收益选项会在任务中途切换。</li>
+                        </ul>
+                    </div>
+                    <button class="start-btn" onclick="startGame()">开始任务</button>
+                </div>
+            </div>
+
+            <div id="rl-panel" style="display:none;">
+                <div class="rl-stage">
+                    <p id="phase-hint" style="margin:0;color:#7f8c8d;">阶段：学习阶段</p>
+                    <div class="rl-actions">
+                        <button class="rl-choice" id="choose-a">选择 A</button>
+                        <button class="rl-choice" id="choose-b">选择 B</button>
+                    </div>
+                    <p class="rl-feedback" id="feedback"></p>
+                </div>
+            </div>
+
+            <div class="modal-overlay" id="result-modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2><i class="fas fa-flag-checkered"></i> 任务完成</h2>
+                    </div>
+                    <div class="modal-body">
+                        <div class="result-stat">
+                            <span class="stat-label">总收益</span>
+                            <span class="stat-value highlight" id="result-reward">0</span>
+                        </div>
+                        <div class="result-stat">
+                            <span class="stat-label">反转前最优率</span>
+                            <span class="stat-value" id="result-pre">0%</span>
+                        </div>
+                        <div class="result-stat">
+                            <span class="stat-label">反转后最优率</span>
+                            <span class="stat-value warning" id="result-post">0%</span>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn-primary" onclick="location.reload()">再试一次</button>
+                        <a href="index.html" class="btn-secondary">返回大厅</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="src/shared/training-results.js"></script>
+    <script src="reversal-learning.js"></script>
+</body>
+</html>

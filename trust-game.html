@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>信任博弈 - 认知能力训练</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .tg-stage {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .tg-panel {
+            width: 100%;
+            max-width: 500px;
+            border: 1px solid #dce4ec;
+            border-radius: 12px;
+            background: #fff;
+            padding: 16px;
+        }
+
+        .tg-slider-row {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .tg-slider-row input[type="range"] {
+            width: 100%;
+        }
+
+        .tg-log {
+            width: 100%;
+            max-height: 220px;
+            overflow: auto;
+            border: 1px solid #e4eaf0;
+            border-radius: 8px;
+            padding: 10px;
+            background: #fff;
+            font-size: 0.95rem;
+        }
+
+        .tg-log p {
+            margin: 6px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <header class="game-header">
+            <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i> 返回大厅</a>
+            <h1>信任博弈</h1>
+            <div class="score-board">
+                <span><i class="fas fa-list-ol"></i> 回合: <span id="round">0</span>/20</span>
+                <span><i class="fas fa-coins"></i> 累计收益: <span id="total">0</span></span>
+                <span><i class="fas fa-chart-bar"></i> 平均投入: <span id="avg-invest">0</span></span>
+            </div>
+        </header>
+
+        <div class="game-area">
+            <div class="instruction-overlay" id="start-screen">
+                <div class="instruction-content">
+                    <h2><i class="fas fa-users"></i> 社会互惠训练</h2>
+                    <p>每轮你有 10 点预算，可选择投入给对方。投入会变成 3 倍后由对方返还一部分。</p>
+                    <div class="rule-box">
+                        <h3>规则</h3>
+                        <ul>
+                            <li>投入越多，潜在回报越高，但不确定性也更大。</li>
+                            <li>每轮收益 = 未投入部分 + 对方返还。</li>
+                            <li>观察并调整你的投入策略。</li>
+                        </ul>
+                    </div>
+                    <button class="start-btn" onclick="startGame()">开始任务</button>
+                </div>
+            </div>
+
+            <div id="tg-panel" style="display:none;">
+                <div class="tg-stage">
+                    <div class="tg-panel">
+                        <p style="margin:0 0 10px 0;color:#7f8c8d;">本轮预算：10 点</p>
+                        <div class="tg-slider-row">
+                            <label for="invest-input">投入金额：<span id="invest-value">5</span></label>
+                            <input id="invest-input" type="range" min="0" max="10" value="5">
+                        </div>
+                        <div style="margin-top:12px;text-align:center;">
+                            <button class="btn primary" id="invest-btn">确认投入</button>
+                        </div>
+                    </div>
+
+                    <p id="feedback" style="min-height:22px;font-weight:600;color:#34495e;"></p>
+                    <div class="tg-log" id="log"></div>
+                </div>
+            </div>
+
+            <div class="modal-overlay" id="result-modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2><i class="fas fa-flag-checkered"></i> 任务完成</h2>
+                    </div>
+                    <div class="modal-body">
+                        <div class="result-stat">
+                            <span class="stat-label">累计收益</span>
+                            <span class="stat-value highlight" id="result-total">0</span>
+                        </div>
+                        <div class="result-stat">
+                            <span class="stat-label">平均投入</span>
+                            <span class="stat-value" id="result-invest">0</span>
+                        </div>
+                        <div class="result-stat">
+                            <span class="stat-label">平均返还率</span>
+                            <span class="stat-value warning" id="result-return-rate">0%</span>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn-primary" onclick="location.reload()">再试一次</button>
+                        <a href="index.html" class="btn-secondary">返回大厅</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="src/shared/training-results.js"></script>
+    <script src="trust-game.js"></script>
+</body>
+</html>

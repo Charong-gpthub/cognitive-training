@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>每日训练报告 - 认知能力训练</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .report-controls {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .report-controls input[type="date"] {
+            padding: 8px 10px;
+            border: 1px solid #d0d7de;
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+
+        .report-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+
+        .report-card {
+            background: #f8f9fa;
+            border: 1px solid #eef2f7;
+            border-radius: 10px;
+            padding: 14px;
+        }
+
+        .report-card .label {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+
+        .report-card .value {
+            color: #2c3e50;
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-top: 4px;
+        }
+
+        .report-table-wrap {
+            overflow-x: auto;
+        }
+
+        #empty-hint {
+            color: #7f8c8d;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <header class="game-header">
+            <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i> 返回大厅</a>
+            <h1>每日训练报告</h1>
+            <div class="score-board">
+                <span><i class="fas fa-calendar-day"></i> 日期: <span id="selected-date-text">--</span></span>
+            </div>
+        </header>
+
+        <div class="game-area">
+            <div class="report-controls">
+                <label for="date-picker">选择日期</label>
+                <input id="date-picker" type="date">
+                <button class="btn secondary" id="today-btn">今天</button>
+                <button class="btn danger" id="clear-btn">清空所有记录</button>
+            </div>
+
+            <div class="report-grid">
+                <div class="report-card">
+                    <div class="label">训练场次</div>
+                    <div class="value" id="total-sessions">0</div>
+                </div>
+                <div class="report-card">
+                    <div class="label">训练项目数</div>
+                    <div class="value" id="unique-games">0</div>
+                </div>
+                <div class="report-card">
+                    <div class="label">总时长</div>
+                    <div class="value" id="total-duration">0m</div>
+                </div>
+                <div class="report-card">
+                    <div class="label">平均时长</div>
+                    <div class="value" id="avg-duration">0m</div>
+                </div>
+            </div>
+
+            <div class="report-table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>时间</th>
+                            <th>项目</th>
+                            <th>时长</th>
+                            <th>关键指标</th>
+                        </tr>
+                    </thead>
+                    <tbody id="sessions-body"></tbody>
+                </table>
+            </div>
+            <p id="empty-hint"></p>
+        </div>
+    </div>
+
+    <script src="src/shared/training-results.js"></script>
+    <script src="report.js"></script>
+</body>
+</html>

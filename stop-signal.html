@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>停止信号任务 - 认知能力训练</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .sst-stimulus-wrap {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .sst-stimulus {
+            width: 180px;
+            height: 180px;
+            border-radius: 16px;
+            border: 4px solid #dfe6e9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 5rem;
+            font-weight: 700;
+            transition: border-color 0.2s ease, background-color 0.2s ease;
+            user-select: none;
+        }
+
+        .sst-stimulus.stop {
+            border-color: #e74c3c;
+            background: #fdecea;
+        }
+
+        .sst-hint {
+            color: #7f8c8d;
+            font-size: 0.95rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <header class="game-header">
+            <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i> 返回大厅</a>
+            <h1>停止信号任务</h1>
+            <div class="score-board">
+                <span><i class="fas fa-bullseye"></i> Go正确率: <span id="go-acc">0%</span></span>
+                <span><i class="fas fa-hand-paper"></i> 停止成功率: <span id="stop-acc">0%</span></span>
+                <span><i class="fas fa-hourglass-half"></i> SSD: <span id="ssd-live">250</span>ms</span>
+            </div>
+        </header>
+
+        <div class="game-area">
+            <div class="instruction-overlay" id="start-screen">
+                <div class="instruction-content">
+                    <h2><i class="fas fa-hand-paper"></i> 反应抑制训练</h2>
+                    <p>看到箭头后，按方向键快速作答；若出现红色停止信号，需立刻抑制反应。</p>
+                    <div class="rule-box">
+                        <h3>规则</h3>
+                        <ul>
+                            <li>看到 <strong>←</strong> 按 <strong>左方向键</strong>；看到 <strong>→</strong> 按 <strong>右方向键</strong>。</li>
+                            <li>部分试次会出现 <strong style="color:#e74c3c">红色停止信号</strong>，出现后请不要按键。</li>
+                            <li>系统会动态调整停止信号延迟（SSD）以匹配你的抑制能力。</li>
+                        </ul>
+                    </div>
+                    <button class="start-btn" onclick="startGame()">开始测试</button>
+                </div>
+            </div>
+
+            <div id="sst-panel" style="display:none;">
+                <div class="sst-stimulus-wrap">
+                    <div class="sst-stimulus" id="stimulus">+</div>
+                    <div class="sst-hint" id="trial-info">试次 0 / 40</div>
+                </div>
+            </div>
+
+            <div class="modal-overlay" id="result-modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2><i class="fas fa-flag-checkered"></i> 测试完成</h2>
+                    </div>
+                    <div class="modal-body">
+                        <div class="result-stat">
+                            <span class="stat-label">Go正确率</span>
+                            <span class="stat-value highlight" id="result-go-acc">0%</span>
+                        </div>
+                        <div class="result-stat">
+                            <span class="stat-label">停止成功率</span>
+                            <span class="stat-value" id="result-stop-acc">0%</span>
+                        </div>
+                        <div class="result-stat">
+                            <span class="stat-label">平均Go反应时</span>
+                            <span class="stat-value" id="result-go-rt">0ms</span>
+                        </div>
+                        <div class="result-stat">
+                            <span class="stat-label">估计SSRT</span>
+                            <span class="stat-value warning" id="result-ssrt">0ms</span>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn-primary" onclick="location.reload()">再试一次</button>
+                        <a href="index.html" class="btn-secondary">返回大厅</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="src/shared/training-results.js"></script>
+    <script src="stop-signal.js"></script>
+</body>
+</html>

@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>河内塔 - 认知能力训练</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .hanoi-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 14px;
+        }
+
+        .hanoi-controls select {
+            padding: 7px 10px;
+            border: 1px solid #d0d7de;
+            border-radius: 6px;
+        }
+
+        .hanoi-board {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            align-items: end;
+            min-height: 280px;
+        }
+
+        .peg {
+            border: 1px solid #e5eaf0;
+            border-radius: 10px;
+            background: #f8f9fa;
+            min-height: 260px;
+            display: flex;
+            flex-direction: column-reverse;
+            align-items: center;
+            padding: 10px 8px;
+            position: relative;
+        }
+
+        .peg::before {
+            content: "";
+            width: 8px;
+            height: 180px;
+            background: #95a5a6;
+            border-radius: 999px;
+            position: absolute;
+            bottom: 24px;
+        }
+
+        .disk {
+            height: 20px;
+            border-radius: 999px;
+            margin-top: 6px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .peg.selected {
+            outline: 2px solid #3498db;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <header class="game-header">
+            <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i> 返回大厅</a>
+            <h1>河内塔</h1>
+            <div class="score-board">
+                <span><i class="fas fa-shoe-prints"></i> 步数: <span id="moves">0</span></span>
+                <span><i class="fas fa-bullseye"></i> 最优: <span id="optimal">0</span></span>
+                <span><i class="fas fa-stopwatch"></i> 用时: <span id="time">0s</span></span>
+            </div>
+        </header>
+
+        <div class="game-area">
+            <div class="instruction-overlay" id="start-screen">
+                <div class="instruction-content">
+                    <h2><i class="fas fa-gopuram"></i> 递归规划训练</h2>
+                    <p>将所有圆盘从左柱移动到右柱，每次只能移动一个，且大盘不能放在小盘上。</p>
+                    <div class="rule-box">
+                        <h3>规则</h3>
+                        <ul>
+                            <li>先点击起始柱，再点击目标柱。</li>
+                            <li>可调圆盘数量，圆盘越多难度越高。</li>
+                            <li>以更接近最优步数完成为目标。</li>
+                        </ul>
+                    </div>
+                    <button class="start-btn" onclick="startGame()">开始任务</button>
+                </div>
+            </div>
+
+            <div id="hanoi-panel" style="display:none;">
+                <div class="hanoi-controls">
+                    <label for="disk-count">圆盘数</label>
+                    <select id="disk-count">
+                        <option value="3">3</option>
+                        <option value="4" selected>4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                    </select>
+                    <button class="btn secondary" id="restart-btn">重开</button>
+                </div>
+                <div class="hanoi-board">
+                    <div class="peg" data-peg="0"></div>
+                    <div class="peg" data-peg="1"></div>
+                    <div class="peg" data-peg="2"></div>
+                </div>
+                <p class="feedback-text" id="hint"></p>
+            </div>
+
+            <div class="modal-overlay" id="result-modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2><i class="fas fa-trophy"></i> 完成</h2>
+                    </div>
+                    <div class="modal-body">
+                        <div class="result-stat">
+                            <span class="stat-label">总步数</span>
+                            <span class="stat-value highlight" id="result-moves">0</span>
+                        </div>
+                        <div class="result-stat">
+                            <span class="stat-label">最优步数</span>
+                            <span class="stat-value" id="result-optimal">0</span>
+                        </div>
+                        <div class="result-stat">
+                            <span class="stat-label">效率</span>
+                            <span class="stat-value warning" id="result-efficiency">0%</span>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn-primary" onclick="location.reload()">再试一次</button>
+                        <a href="index.html" class="btn-secondary">返回大厅</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="src/shared/training-results.js"></script>
+    <script src="hanoi.js"></script>
+</body>
+</html>

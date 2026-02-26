@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>八/十五数码问题 - 认知能力训练</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .sp-controls {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+            margin-bottom: 14px;
+        }
+
+        .sp-controls select {
+            padding: 7px 10px;
+            border: 1px solid #d0d7de;
+            border-radius: 6px;
+        }
+
+        .sp-board {
+            display: grid;
+            gap: 8px;
+            width: min(360px, 90vw);
+            margin: 0 auto;
+        }
+
+        .sp-tile {
+            aspect-ratio: 1;
+            border: 1px solid #dfe6e9;
+            border-radius: 8px;
+            background: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            font-weight: 700;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .sp-tile.empty {
+            background: #ecf0f1;
+            cursor: default;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <header class="game-header">
+            <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i> 返回大厅</a>
+            <h1>八/十五数码问题</h1>
+            <div class="score-board">
+                <span><i class="fas fa-ruler-combined"></i> 尺寸: <span id="size-text">3x3</span></span>
+                <span><i class="fas fa-shoe-prints"></i> 步数: <span id="moves">0</span></span>
+                <span><i class="fas fa-stopwatch"></i> 用时: <span id="time">0s</span></span>
+            </div>
+        </header>
+
+        <div class="game-area">
+            <div class="instruction-overlay" id="start-screen">
+                <div class="instruction-content">
+                    <h2><i class="fas fa-border-all"></i> 路径搜索训练</h2>
+                    <p>通过滑动方块恢复有序布局，训练规划、搜索和工作记忆。</p>
+                    <div class="rule-box">
+                        <h3>规则</h3>
+                        <ul>
+                            <li>只能移动与空白格相邻的方块。</li>
+                            <li>目标是将数字按升序排列，空白格在末尾。</li>
+                            <li>可切换 3x3（八数码）或 4x4（十五数码）。</li>
+                        </ul>
+                    </div>
+                    <button class="start-btn" onclick="startGame()">开始任务</button>
+                </div>
+            </div>
+
+            <div id="sp-panel" style="display:none;">
+                <div class="sp-controls">
+                    <label for="board-size">棋盘</label>
+                    <select id="board-size">
+                        <option value="3">3x3</option>
+                        <option value="4">4x4</option>
+                    </select>
+                    <button class="btn secondary" id="shuffle-btn">重新打乱</button>
+                </div>
+                <div class="sp-board" id="board"></div>
+                <p class="feedback-text" id="hint"></p>
+            </div>
+
+            <div class="modal-overlay" id="result-modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2><i class="fas fa-trophy"></i> 完成</h2>
+                    </div>
+                    <div class="modal-body">
+                        <div class="result-stat">
+                            <span class="stat-label">步数</span>
+                            <span class="stat-value highlight" id="result-moves">0</span>
+                        </div>
+                        <div class="result-stat">
+                            <span class="stat-label">用时</span>
+                            <span class="stat-value" id="result-time">0s</span>
+                        </div>
+                        <div class="result-stat">
+                            <span class="stat-label">棋盘</span>
+                            <span class="stat-value warning" id="result-size">3x3</span>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn-primary" onclick="location.reload()">再试一次</button>
+                        <a href="index.html" class="btn-secondary">返回大厅</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="src/shared/training-results.js"></script>
+    <script src="sliding-puzzle.js"></script>
+</body>
+</html>

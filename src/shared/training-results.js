@@ -1,0 +1,109 @@
+(function initTrainingResults(global) {
+    const STORAGE_KEY = "cognitive-training:sessions";
+
+    function safeParse(value, fallback) {
+        try {
+            return JSON.parse(value);
+        } catch (_error) {
+            return fallback;
+        }
+    }
+
+    function loadSessions() {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        const data = raw ? safeParse(raw, []) : [];
+        return Array.isArray(data) ? data : [];
+    }
+
+    function saveSessions(list) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+    }
+
+    function toDateKey(value) {
+        const date = value instanceof Date ? value : new Date(value);
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const day = String(date.getDate()).padStart(2, "0");
+        return `${year}-${month}-${day}`;
+    }
+
+    function sortByFinishedAtDesc(a, b) {
+        return new Date(b.finishedAt).getTime() - new Date(a.finishedAt).getTime();
+    }
+
+    function normalizeSession(session) {
+        const finishedAt = session.finishedAt ? new Date(session.finishedAt) : new Date();
+        const startedAt = session.startedAt ? new Date(session.startedAt) : new Date(finishedAt.getTime());
+        const durationMs = Number.isFinite(session.durationMs)
+            ? Math.max(0, Math.round(session.durationMs))
+            : Math.max(0, finishedAt.getTime() - startedAt.getTime());
+
+        return {
+            id: session.id || `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+            gameId: session.gameId || "unknown",
+            gameName: session.gameName || "Unknown Game",
+            startedAt: startedAt.toISOString(),
+            finishedAt: finishedAt.toISOString(),
+            durationMs,
+            score: Number.isFinite(session.score) ? session.score : null,
+            metrics: session.metrics && typeof session.metrics === "object" ? session.metrics : {},
+            tags: Array.isArray(session.tags) ? session.tags : []
+        };
+    }
+
+    function saveSession(session) {
+        const list = loadSessions();
+        const normalized = normalizeSession(session);
+        list.push(normalized);
+        list.sort(sortByFinishedAtDesc);
+        saveSessions(list);
+        return normalized;
+    }
+
+    function getAllSessions() {
+        return loadSessions().sort(sortByFinishedAtDesc);
+    }
+
+    function getSessionsByDate(dateKey) {
+        return getAllSessions().filter((item) => toDateKey(item.finishedAt) === dateKey);
+    }
+
+    function getTodaySessions() {
+        return getSessionsByDate(toDateKey(new Date()));
+    }
+
+    function getAvailableDates() {
+        const unique = new Set(getAllSessions().map((item) => toDateKey(item.finishedAt)));
+        return Array.from(unique).sort((a, b) => (a > b ? -1 : 1));
+    }
+
+    function getDailyOverview(dateKey) {
+        const sessions = getSessionsByDate(dateKey);
+        const totalSessions = sessions.length;
+        const uniqueGames = new Set(sessions.map((item) => item.gameId)).size;
+        const totalDurationMs = sessions.reduce((sum, item) => sum + (item.durationMs || 0), 0);
+        const averageDurationMs = totalSessions > 0 ? Math.round(totalDurationMs / totalSessions) : 0;
+
+        return {
+            dateKey,
+            totalSessions,
+            uniqueGames,
+            totalDurationMs,
+            averageDurationMs
+        };
+    }
+
+    function clearAllSessions() {
+        localStorage.removeItem(STORAGE_KEY);
+    }
+
+    global.TrainingResults = {
+        saveSession,
+        getAllSessions,
+        getSessionsByDate,
+        getTodaySessions,
+        getAvailableDates,
+        getDailyOverview,
+        clearAllSessions
+    };
+})(window);

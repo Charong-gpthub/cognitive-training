@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>替代用途测验 - 认知能力训练</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .aut-stage {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .aut-box {
+            border: 1px solid #dce4ec;
+            border-radius: 10px;
+            background: #fff;
+            padding: 14px;
+        }
+
+        .aut-box h3 {
+            margin: 0 0 10px 0;
+            color: #34495e;
+        }
+
+        .aut-box textarea {
+            width: 100%;
+            min-height: 180px;
+            border: 1px solid #ccd6df;
+            border-radius: 8px;
+            padding: 10px;
+            font-size: 1rem;
+            resize: vertical;
+        }
+
+        .aut-tip {
+            margin-top: 6px;
+            color: #7f8c8d;
+            font-size: 0.92rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <header class="game-header">
+            <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i> 返回大厅</a>
+            <h1>替代用途测验</h1>
+            <div class="score-board">
+                <span><i class="fas fa-list-ol"></i> 题目: <span id="round">0</span>/3</span>
+                <span><i class="fas fa-stopwatch"></i> 剩余: <span id="time">60s</span></span>
+                <span><i class="fas fa-lightbulb"></i> 已写用途: <span id="uses-count">0</span></span>
+            </div>
+        </header>
+
+        <div class="game-area">
+            <div class="instruction-overlay" id="start-screen">
+                <div class="instruction-content">
+                    <h2><i class="fas fa-paperclip"></i> 发散思维训练</h2>
+                    <p>针对给定物品写出尽可能多的“非典型用途”。每行一个用途。</p>
+                    <div class="rule-box">
+                        <h3>规则</h3>
+                        <ul>
+                            <li>每题 60 秒，共 3 题。</li>
+                            <li>用途越多越好，尽量避免重复。</li>
+                            <li>时间到自动进入下一题。</li>
+                        </ul>
+                    </div>
+                    <button class="start-btn" onclick="startGame()">开始任务</button>
+                </div>
+            </div>
+
+            <div id="aut-panel" style="display:none;">
+                <div class="aut-stage">
+                    <div class="aut-box">
+                        <h3>请写出“<span id="prompt-text"></span>”的替代用途</h3>
+                        <textarea id="uses-input" placeholder="每行写一个用途..."></textarea>
+                        <p class="aut-tip">建议写具体用途，如“临时门挡”“电线固定夹”等。</p>
+                    </div>
+                    <div style="text-align:center;">
+                        <button class="btn primary" id="next-btn">提交并下一题</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-overlay" id="result-modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2><i class="fas fa-flag-checkered"></i> 任务完成</h2>
+                    </div>
+                    <div class="modal-body">
+                        <div class="result-stat">
+                            <span class="stat-label">总用途数（流畅性）</span>
+                            <span class="stat-value highlight" id="result-fluency">0</span>
+                        </div>
+                        <div class="result-stat">
+                            <span class="stat-label">词汇多样性</span>
+                            <span class="stat-value" id="result-diversity">0%</span>
+                        </div>
+                        <div class="result-stat">
+                            <span class="stat-label">平均描述长度</span>
+                            <span class="stat-value warning" id="result-length">0</span>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn-primary" onclick="location.reload()">再试一次</button>
+                        <a href="index.html" class="btn-secondary">返回大厅</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="src/shared/training-results.js"></script>
+    <script src="alternative-uses.js"></script>
+</body>
+</html>

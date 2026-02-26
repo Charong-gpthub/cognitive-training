@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>萨莉-安妮任务 - 认知能力训练</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .sa-stage {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .sa-box {
+            width: 100%;
+            max-width: 620px;
+            border: 1px solid #dce4ec;
+            border-radius: 10px;
+            background: #fff;
+            padding: 16px;
+        }
+
+        .sa-question {
+            font-size: 1.05rem;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+
+        .sa-options {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <header class="game-header">
+            <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i> 返回大厅</a>
+            <h1>萨莉-安妮任务</h1>
+            <div class="score-board">
+                <span><i class="fas fa-list-ol"></i> 题目: <span id="progress">0</span>/10</span>
+                <span><i class="fas fa-check"></i> 正确: <span id="correct">0</span></span>
+                <span><i class="fas fa-stopwatch"></i> 平均反应: <span id="avg-rt">0ms</span></span>
+            </div>
+        </header>
+
+        <div class="game-area">
+            <div class="instruction-overlay" id="start-screen">
+                <div class="instruction-content">
+                    <h2><i class="fas fa-child"></i> 心理理论训练</h2>
+                    <p>判断角色会“基于自己看到的信息”做什么，而不是基于真实位置。</p>
+                    <div class="rule-box">
+                        <h3>规则</h3>
+                        <ul>
+                            <li>阅读情景后选择最可能答案。</li>
+                            <li>题目关注“他人信念”而非事实。</li>
+                            <li>共 10 题。</li>
+                        </ul>
+                    </div>
+                    <button class="start-btn" onclick="startGame()">开始任务</button>
+                </div>
+            </div>
+
+            <div id="sa-panel" style="display:none;">
+                <div class="sa-stage">
+                    <div class="sa-box">
+                        <p class="sa-question" id="question"></p>
+                        <div class="sa-options" id="options"></div>
+                    </div>
+                    <p id="feedback" style="min-height:22px;font-weight:600;color:#34495e;"></p>
+                </div>
+            </div>
+
+            <div class="modal-overlay" id="result-modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2><i class="fas fa-flag-checkered"></i> 任务完成</h2>
+                    </div>
+                    <div class="modal-body">
+                        <div class="result-stat">
+                            <span class="stat-label">正确率</span>
+                            <span class="stat-value highlight" id="result-acc">0%</span>
+                        </div>
+                        <div class="result-stat">
+                            <span class="stat-label">平均反应时</span>
+                            <span class="stat-value" id="result-rt">0ms</span>
+                        </div>
+                        <div class="result-stat">
+                            <span class="stat-label">错误题数</span>
+                            <span class="stat-value warning" id="result-errors">0</span>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn-primary" onclick="location.reload()">再试一次</button>
+                        <a href="index.html" class="btn-secondary">返回大厅</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="src/shared/training-results.js"></script>
+    <script src="sally-anne.js"></script>
+</body>
+</html>

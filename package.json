@@ -1,0 +1,22 @@
+{
+  "name": "cognitive-training-hub",
+  "version": "1.0.0",
+  "description": "Cognitive Training Hub - A collection of brain training games",
+  "main": "main.js",
+  "scripts": {
+    "web": "node server.js",
+    "start": "electron .",
+    "package": "electron-packager . cognitive-training --platform=win32 --arch=x64 --out=dist --overwrite"
+  },
+  "keywords": [
+    "cognitive",
+    "training",
+    "electron"
+  ],
+  "author": "Cognitive Training Developer",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^28.3.3",
+    "electron-packager": "^17.1.2"
+  }
+}

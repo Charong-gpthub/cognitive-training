@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>气球风险任务 - 认知能力训练</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .bart-stage {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 14px;
+            margin-top: 10px;
+        }
+
+        .balloon {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 35% 30%, #ff9aa2, #e74c3c);
+            transition: transform 0.2s ease, opacity 0.2s ease;
+        }
+
+        .balloon.popped {
+            opacity: 0.25;
+            transform: scale(1.05);
+            filter: grayscale(0.7);
+        }
+
+        .bart-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .bart-hint {
+            min-height: 22px;
+            color: #34495e;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <header class="game-header">
+            <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i> 返回大厅</a>
+            <h1>气球风险任务</h1>
+            <div class="score-board">
+                <span><i class="fas fa-list-ol"></i> 气球: <span id="round">1</span>/20</span>
+                <span><i class="fas fa-coins"></i> 临时分: <span id="temp-points">0</span></span>
+                <span><i class="fas fa-piggy-bank"></i> 已入账: <span id="bank-points">0</span></span>
+            </div>
+        </header>
+
+        <div class="game-area">
+            <div class="instruction-overlay" id="start-screen">
+                <div class="instruction-content">
+                    <h2><i class="fas fa-balloon"></i> 风险承担训练</h2>
+                    <p>每次充气都能获得分数，但气球会在未知次数后爆炸；爆炸会失去本轮临时分。</p>
+                    <div class="rule-box">
+                        <h3>规则</h3>
+                        <ul>
+                            <li>点击“充气”可增加临时分与气球体积。</li>
+                            <li>点击“收手入账”可保存本轮临时分。</li>
+                            <li>若气球爆炸，本轮临时分归零并自动进入下一轮。</li>
+                        </ul>
+                    </div>
+                    <button class="start-btn" onclick="startGame()">开始任务</button>
+                </div>
+            </div>
+
+            <div id="bart-panel" style="display:none;">
+                <div class="bart-stage">
+                    <div class="balloon" id="balloon"></div>
+                    <div class="bart-actions">
+                        <button class="btn primary" id="pump-btn">充气 (+5)</button>
+                        <button class="btn secondary" id="bank-btn">收手入账</button>
+                    </div>
+                    <p class="bart-hint" id="hint"></p>
+                </div>
+            </div>
+
+            <div class="modal-overlay" id="result-modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2><i class="fas fa-flag-checkered"></i> 任务完成</h2>
+                    </div>
+                    <div class="modal-body">
+                        <div class="result-stat">
+                            <span class="stat-label">总入账分</span>
+                            <span class="stat-value highlight" id="result-bank">0</span>
+                        </div>
+                        <div class="result-stat">
+                            <span class="stat-label">平均充气次数</span>
+                            <span class="stat-value" id="result-avg-pumps">0</span>
+                        </div>
+                        <div class="result-stat">
+                            <span class="stat-label">爆炸率</span>
+                            <span class="stat-value warning" id="result-pop-rate">0%</span>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn-primary" onclick="location.reload()">再试一次</button>
+                        <a href="index.html" class="btn-secondary">返回大厅</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="src/shared/training-results.js"></script>
+    <script src="balloon-risk.js"></script>
+</body>
+</html>

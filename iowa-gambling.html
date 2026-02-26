@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>爱荷华赌博任务 - 认知能力训练</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .igt-stage {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .deck-grid {
+            width: 100%;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 10px;
+        }
+
+        .deck-btn {
+            border: 1px solid #dbe3eb;
+            border-radius: 10px;
+            background: #fff;
+            padding: 12px 10px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .deck-btn:hover {
+            border-color: #3498db;
+            transform: translateY(-2px);
+        }
+
+        .igt-log {
+            width: 100%;
+            max-height: 220px;
+            overflow: auto;
+            border: 1px solid #e4eaf0;
+            border-radius: 8px;
+            padding: 10px;
+            background: #fff;
+            font-size: 0.95rem;
+        }
+
+        .igt-log p {
+            margin: 6px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <header class="game-header">
+            <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i> 返回大厅</a>
+            <h1>爱荷华赌博任务</h1>
+            <div class="score-board">
+                <span><i class="fas fa-list-ol"></i> 试次: <span id="trial">0</span>/60</span>
+                <span><i class="fas fa-wallet"></i> 余额: <span id="balance">2000</span></span>
+                <span><i class="fas fa-chart-line"></i> 优势选择率: <span id="adv-rate">0%</span></span>
+            </div>
+        </header>
+
+        <div class="game-area">
+            <div class="instruction-overlay" id="start-screen">
+                <div class="instruction-content">
+                    <h2><i class="fas fa-dice"></i> 长期收益决策</h2>
+                    <p>从 A/B/C/D 四个牌堆中反复抽牌，观察短期得失与长期净收益差异。</p>
+                    <div class="rule-box">
+                        <h3>规则</h3>
+                        <ul>
+                            <li>每轮选择 1 个牌堆抽取。</li>
+                            <li>部分牌堆短期收益高但长期亏损大。</li>
+                            <li>目标是在 60 轮后尽量保持较高余额。</li>
+                        </ul>
+                    </div>
+                    <button class="start-btn" onclick="startGame()">开始任务</button>
+                </div>
+            </div>
+
+            <div id="igt-panel" style="display:none;">
+                <div class="igt-stage">
+                    <div class="deck-grid">
+                        <button class="deck-btn" data-deck="A">牌堆 A</button>
+                        <button class="deck-btn" data-deck="B">牌堆 B</button>
+                        <button class="deck-btn" data-deck="C">牌堆 C</button>
+                        <button class="deck-btn" data-deck="D">牌堆 D</button>
+                    </div>
+                    <p id="feedback" style="min-height:22px;font-weight:600;color:#34495e;"></p>
+                    <div class="igt-log" id="log"></div>
+                </div>
+            </div>
+
+            <div class="modal-overlay" id="result-modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2><i class="fas fa-flag-checkered"></i> 任务完成</h2>
+                    </div>
+                    <div class="modal-body">
+                        <div class="result-stat">
+                            <span class="stat-label">最终余额</span>
+                            <span class="stat-value highlight" id="result-balance">0</span>
+                        </div>
+                        <div class="result-stat">
+                            <span class="stat-label">净变化</span>
+                            <span class="stat-value" id="result-net">0</span>
+                        </div>
+                        <div class="result-stat">
+                            <span class="stat-label">优势选择率</span>
+                            <span class="stat-value warning" id="result-adv-rate">0%</span>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn-primary" onclick="location.reload()">再试一次</button>
+                        <a href="index.html" class="btn-secondary">返回大厅</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="src/shared/training-results.js"></script>
+    <script src="iowa-gambling.js"></script>
+</body>
+</html>

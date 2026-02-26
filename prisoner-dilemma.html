@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>囚徒困境 - 认知能力训练</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .pd-matrix {
+            width: 100%;
+            max-width: 520px;
+            margin: 0 auto 14px;
+        }
+
+        .pd-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 12px;
+        }
+
+        .pd-log {
+            max-height: 220px;
+            overflow: auto;
+            margin-top: 12px;
+            border: 1px solid #e5eaf0;
+            border-radius: 8px;
+            padding: 10px;
+            background: #fff;
+            font-size: 0.95rem;
+        }
+
+        .pd-log p {
+            margin: 6px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <header class="game-header">
+            <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i> 返回大厅</a>
+            <h1>囚徒困境</h1>
+            <div class="score-board">
+                <span><i class="fas fa-list-ol"></i> 回合: <span id="round">0</span>/20</span>
+                <span><i class="fas fa-user"></i> 你: <span id="my-score">0</span></span>
+                <span><i class="fas fa-robot"></i> 对手: <span id="op-score">0</span></span>
+            </div>
+        </header>
+
+        <div class="game-area">
+            <div class="instruction-overlay" id="start-screen">
+                <div class="instruction-content">
+                    <h2><i class="fas fa-lock"></i> 合作与背叛决策</h2>
+                    <p>你将与一个策略对手进行 20 回合博弈。观察对手行为并动态调整策略。</p>
+                    <div class="rule-box">
+                        <h3>收益矩阵（你, 对手）</h3>
+                        <ul>
+                            <li>双方合作：3, 3</li>
+                            <li>你背叛、对手合作：5, 0</li>
+                            <li>你合作、对手背叛：0, 5</li>
+                            <li>双方背叛：1, 1</li>
+                        </ul>
+                    </div>
+                    <button class="start-btn" onclick="startGame()">开始任务</button>
+                </div>
+            </div>
+
+            <div id="pd-panel" style="display:none;">
+                <table class="pd-matrix">
+                    <thead>
+                        <tr><th>你的选择</th><th>对手选择</th><th>你的得分</th><th>对手得分</th></tr>
+                    </thead>
+                    <tbody id="last-row">
+                        <tr><td>--</td><td>--</td><td>--</td><td>--</td></tr>
+                    </tbody>
+                </table>
+                <div class="pd-actions">
+                    <button class="btn primary" id="cooperate-btn">合作 (C)</button>
+                    <button class="btn danger" id="defect-btn">背叛 (D)</button>
+                </div>
+                <div class="pd-log" id="log"></div>
+            </div>
+
+            <div class="modal-overlay" id="result-modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2><i class="fas fa-flag-checkered"></i> 任务完成</h2>
+                    </div>
+                    <div class="modal-body">
+                        <div class="result-stat">
+                            <span class="stat-label">你的总分</span>
+                            <span class="stat-value highlight" id="result-my">0</span>
+                        </div>
+                        <div class="result-stat">
+                            <span class="stat-label">合作率</span>
+                            <span class="stat-value" id="result-coop-rate">0%</span>
+                        </div>
+                        <div class="result-stat">
+                            <span class="stat-label">平均每回合得分</span>
+                            <span class="stat-value warning" id="result-avg">0</span>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn-primary" onclick="location.reload()">再试一次</button>
+                        <a href="index.html" class="btn-secondary">返回大厅</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="src/shared/training-results.js"></script>
+    <script src="prisoner-dilemma.js"></script>
+</body>
+</html>
