@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pages 发布测试页</title>
+    <style>
+        :root {
+            --bg: #f3f7fb;
+            --card: #ffffff;
+            --text: #152436;
+            --accent: #0070f3;
+            --ok: #0f9d58;
+            --border: #d9e5f3;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: grid;
+            place-items: center;
+            font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: linear-gradient(160deg, #f6fbff 0%, #edf3fa 100%);
+            color: var(--text);
+        }
+
+        .card {
+            width: min(680px, 92vw);
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 24px;
+            box-shadow: 0 8px 26px rgba(16, 45, 74, 0.08);
+        }
+
+        h1 {
+            margin: 0 0 12px;
+            font-size: 1.5rem;
+            color: var(--accent);
+        }
+
+        .ok {
+            margin: 0 0 14px;
+            color: var(--ok);
+            font-weight: 600;
+        }
+
+        code {
+            background: #edf4ff;
+            border-radius: 6px;
+            padding: 2px 6px;
+        }
+    </style>
+</head>
+<body>
+    <main class="card">
+        <h1>GitHub Pages 测试成功页</h1>
+        <p class="ok">如果你能看到这个页面，说明 Pages 部署链路已恢复。</p>
+        <p>访问地址应为：<code>/cognitive-training/health-check.html</code></p>
+        <p id="time"></p>
+    </main>
+    <script>
+        document.getElementById("time").textContent = "客户端时间: " + new Date().toLocaleString("zh-CN", { hour12: false });
+    </script>
+</body>
+</html>
