@@ -1,34 +1,40 @@
 const TOTAL_TRIALS = 40;
+const PRACTICE_TRIALS = 12;
 const STIMULI = [1, 2, 3, 4, 6, 7, 8, 9];
-const TASKS = ['parity', 'magnitude'];
+const TASKS = ["parity", "magnitude"];
 const COLORS = {
-    'parity': '#3498db',    // Blue
-    'magnitude': '#e67e22'  // Orange
+    parity: "#3498db",
+    magnitude: "#e67e22"
 };
 
 let currentTrial = 0;
+let totalTrials = TOTAL_TRIALS;
 let trials = [];
 let responses = [];
 let isGameActive = false;
 let trialStartTime = 0;
-let lastTask = null;
 let canRespond = false;
+let currentPhase = "test";
 
 // DOM Elements
-const instructionOverlay = document.getElementById('instruction-overlay');
-const gameDisplay = document.getElementById('ts-display');
-const stimulusCard = document.getElementById('stimulus-card');
-const stimulusNumber = document.getElementById('stimulus-number');
-const resultModal = document.getElementById('result-modal');
-const accuracyDisplay = document.getElementById('accuracy');
-const switchCostDisplay = document.getElementById('switch-cost');
+const instructionOverlay = document.getElementById("instruction-overlay");
+const gameDisplay = document.getElementById("ts-display");
+const stimulusCard = document.getElementById("stimulus-card");
+const stimulusNumber = document.getElementById("stimulus-number");
+const resultModal = document.getElementById("result-modal");
+const accuracyDisplay = document.getElementById("accuracy");
+const progressDisplay = document.getElementById("trial-progress");
+const switchCostDisplay = document.getElementById("switch-cost");
+const phaseLabel = document.getElementById("phase-label");
+const prestartActions = document.getElementById("prestart-actions");
+const practiceStatus = document.getElementById("practice-status");
 
 // Event Listener for Keys
-document.addEventListener('keydown', (e) => {
+document.addEventListener("keydown", (e) => {
     if (!isGameActive || !canRespond) return;
-    
+
     const key = e.key.toLowerCase();
-    if (key === 'a' || key === 'l') {
+    if (key === "a" || key === "l") {
         handleResponse(key);
     }
 });
@@ -39,102 +45,108 @@ function handleButtonClick(key) {
 }
 
 function startGame() {
+    beginSession("test");
+}
+
+function startPractice() {
+    beginSession("practice");
+}
+
+function beginSession(phase) {
+    currentPhase = phase;
+    totalTrials = phase === "practice" ? PRACTICE_TRIALS : TOTAL_TRIALS;
     isGameActive = true;
+    canRespond = false;
     currentTrial = 0;
-    trials = generateTrials();
+    trials = generateTrials(totalTrials);
     responses = [];
-    
-    instructionOverlay.style.display = 'none';
-    gameDisplay.style.display = 'flex';
-    resultModal.style.display = 'none';
-    
-    // Add a small delay before first trial
+
+    instructionOverlay.style.display = "none";
+    gameDisplay.style.display = "flex";
+    resultModal.style.display = "none";
+    phaseLabel.textContent = currentPhase === "practice" ? "练习模式" : "正式测试";
+    progressDisplay.textContent = `0/${totalTrials}`;
+    accuracyDisplay.textContent = "0%";
+    switchCostDisplay.textContent = "-- ms";
+    practiceStatus.style.display = "none";
+
     setTimeout(runTrial, 1000);
 }
 
-function generateTrials() {
+function generateTrials(count) {
     const trialList = [];
     let previousTask = TASKS[Math.floor(Math.random() * TASKS.length)];
-    
-    for (let i = 0; i < TOTAL_TRIALS; i++) {
+
+    for (let i = 0; i < count; i++) {
         // 50% chance to switch task
         const isSwitch = Math.random() < 0.5;
-        const task = isSwitch ? (previousTask === 'parity' ? 'magnitude' : 'parity') : previousTask;
-        
+        const task = isSwitch ? (previousTask === "parity" ? "magnitude" : "parity") : previousTask;
         const number = STIMULI[Math.floor(Math.random() * STIMULI.length)];
-        
+
         // Determine correct answer
         let correctAnswer;
-        if (task === 'parity') {
-            // Odd -> A, Even -> L
-            correctAnswer = (number % 2 !== 0) ? 'a' : 'l';
+        if (task === "parity") {
+            correctAnswer = number % 2 !== 0 ? "a" : "l";
         } else {
-            // Low (<5) -> A, High (>5) -> L
-            correctAnswer = (number < 5) ? 'a' : 'l';
+            correctAnswer = number < 5 ? "a" : "l";
         }
-        
+
         trialList.push({
             index: i,
-            task: task,
-            number: number,
-            isSwitch: (i === 0) ? false : (task !== previousTask), // First trial is never a switch cost trial
-            correctAnswer: correctAnswer
+            task,
+            number,
+            isSwitch: i === 0 ? false : task !== previousTask,
+            correctAnswer
         });
-        
+
         previousTask = task;
     }
     return trialList;
 }
 
 function runTrial() {
-    if (currentTrial >= TOTAL_TRIALS) {
-        endGame();
+    if (currentTrial >= totalTrials) {
+        endSession();
         return;
     }
-    
+
     const trial = trials[currentTrial];
-    
-    // Update Display
+    progressDisplay.textContent = `${currentTrial + 1}/${totalTrials}`;
     stimulusCard.style.backgroundColor = COLORS[trial.task];
     stimulusNumber.textContent = trial.number;
-    stimulusNumber.style.visibility = 'visible';
-    
+    stimulusNumber.style.visibility = "visible";
+
     canRespond = true;
     trialStartTime = Date.now();
 }
 
 function handleResponse(key) {
     if (!isGameActive || !canRespond) return;
-    
+
     canRespond = false;
     const rt = Date.now() - trialStartTime;
-    // Prevent accidental double taps or too fast responses
     if (rt < 100) return;
-    
+
     const trial = trials[currentTrial];
     const isCorrect = (key === trial.correctAnswer);
-    
-    // Feedback
+
     if (!isCorrect) {
-        stimulusCard.classList.add('shake');
-        setTimeout(() => stimulusCard.classList.remove('shake'), 300);
+        stimulusCard.classList.add("shake");
+        setTimeout(() => stimulusCard.classList.remove("shake"), 300);
     }
-    
+
     responses.push({
         ...trial,
-        rt: rt,
+        rt,
         correct: isCorrect,
         userKey: key
     });
-    
+
     updateLiveStats();
-    
-    // Move to next trial
-    stimulusNumber.style.visibility = 'hidden';
+    stimulusNumber.style.visibility = "hidden";
     currentTrial++;
-    
-    // ISI (Inter-Stimulus Interval)
-    setTimeout(runTrial, 400); // 400ms pause between trials
+
+    setTimeout(runTrial, 400);
 }
 
 function updateLiveStats() {
@@ -145,38 +157,50 @@ function updateLiveStats() {
 
 function calculateResults() {
     const correctResponses = responses.filter(r => r.correct);
-    const accuracy = Math.round((correctResponses.length / TOTAL_TRIALS) * 100);
+    const accuracy = Math.round((correctResponses.length / totalTrials) * 100);
     const meanRT = Math.round(correctResponses.reduce((sum, r) => sum + r.rt, 0) / correctResponses.length) || 0;
-    
-    // Calculate Switch Cost
-    // Filter for correct trials only
-    // Exclude the first trial as it's neither switch nor repeat
     const validResponses = correctResponses.filter(r => r.index > 0);
-    
     const switchTrials = validResponses.filter(r => r.isSwitch);
     const repeatTrials = validResponses.filter(r => !r.isSwitch);
-    
-    const switchRT = switchTrials.length > 0 
-        ? switchTrials.reduce((sum, r) => sum + r.rt, 0) / switchTrials.length 
+
+    const switchRT = switchTrials.length > 0
+        ? switchTrials.reduce((sum, r) => sum + r.rt, 0) / switchTrials.length
         : 0;
-        
-    const repeatRT = repeatTrials.length > 0 
-        ? repeatTrials.reduce((sum, r) => sum + r.rt, 0) / repeatTrials.length 
+
+    const repeatRT = repeatTrials.length > 0
+        ? repeatTrials.reduce((sum, r) => sum + r.rt, 0) / repeatTrials.length
         : 0;
-        
+
     const switchCost = (switchRT > 0 && repeatRT > 0) ? Math.round(switchRT - repeatRT) : 0;
-    
+
     return { accuracy, meanRT, switchCost };
 }
 
-function endGame() {
+function endSession() {
     isGameActive = false;
+    canRespond = false;
     const results = calculateResults();
-    
-    document.getElementById('final-accuracy').textContent = `${results.accuracy}%`;
-    document.getElementById('final-rt').textContent = `${results.meanRT} ms`;
-    document.getElementById('final-switch-cost').textContent = `${results.switchCost} ms`;
-    
-    gameDisplay.style.display = 'none';
-    resultModal.style.display = 'flex';
+
+    if (currentPhase === "practice") {
+        gameDisplay.style.display = "none";
+        instructionOverlay.style.display = "flex";
+        practiceStatus.style.display = "block";
+        practiceStatus.textContent = `练习完成：正确率 ${results.accuracy}% ，可以开始正式测试。`;
+        prestartActions.innerHTML = '<button class="start-btn" onclick="startGame()">开始正式测试</button>';
+        progressDisplay.textContent = `0/${TOTAL_TRIALS}`;
+        accuracyDisplay.textContent = "0%";
+        switchCostDisplay.textContent = "-- ms";
+        return;
+    }
+
+    document.getElementById("final-accuracy").textContent = `${results.accuracy}%`;
+    document.getElementById("final-rt").textContent = `${results.meanRT} ms`;
+    document.getElementById("final-switch-cost").textContent = `${results.switchCost} ms`;
+    switchCostDisplay.textContent = `${results.switchCost} ms`;
+    gameDisplay.style.display = "none";
+    resultModal.style.display = "flex";
 }
+
+window.startGame = startGame;
+window.startPractice = startPractice;
+window.handleButtonClick = handleButtonClick;

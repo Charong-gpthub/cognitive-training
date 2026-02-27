@@ -81,22 +81,31 @@
         <div class="controls">
             <div class="settings-panel">
                 <div class="number-setting">
-                    <label for="time-setting">时长 (秒):</label>
-                    <input type="number" id="time-setting" min="5" max="300" value="30" step="5">
+                    <label for="trial-setting">试次数量:</label>
+                    <select id="trial-setting">
+                        <option value="20">20 次（快速）</option>
+                        <option value="50" selected>50 次（标准）</option>
+                        <option value="100">100 次（强化）</option>
+                    </select>
                 </div>
             </div>
             <div class="info-panel">
                 <div class="info-item">
-                    <span class="label">得分:</span>
+                    <span class="label">进度:</span>
+                    <span id="progress" class="value">0 / 50</span>
+                </div>
+                <div class="info-item">
+                    <span class="label">正确:</span>
                     <span id="score" class="value">0</span>
                 </div>
                 <div class="info-item">
-                    <span class="label">倒计时:</span>
-                    <span id="time-left" class="value">30s</span>
+                    <span class="label">平均反应:</span>
+                    <span id="avg-rt-live" class="value">0 ms</span>
                 </div>
             </div>
-            <button id="start-btn" class="btn primary">开始挑战</button>
-            <button id="stop-btn" class="btn danger" style="display:none; margin-left: 10px;">停止挑战</button>
+            <button id="start-btn" class="btn primary" style="font-weight: 700; box-shadow: 0 4px 12px rgba(52, 152, 219, 0.35);">开始训练</button>
+            <button id="pause-btn" class="btn secondary" style="display:none; margin-left: 10px;">暂停</button>
+            <button id="stop-btn" class="btn danger" style="display:none; margin-left: 10px;">结束</button>
         </div>
 
         <div id="game-area" class="game-area" style="background: transparent; border: none; height: auto; min-height: 400px; padding-bottom: 0; display: flex; flex-direction: column; justify-content: center;">
@@ -116,6 +125,7 @@
             &lt; &lt; <strong style="color:red">&gt;</strong> &lt; &lt;<br>
             您的任务是只看<b>红色</b>的那个箭头。</p>
             <p>如果红色箭头指向左，按左键；指向右，按右键。红色箭头的位置是随机的。</p>
+            <p>每题作答窗口为 2 秒，超时计为未作答并自动进入下一题。</p>
         </div>
     </div>
 

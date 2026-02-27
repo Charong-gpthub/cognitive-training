@@ -1,5 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     const startBtn = document.getElementById('start-btn');
+    const stopBtn = document.getElementById('stop-btn');
     const gridSizeInput = document.getElementById('grid-size');
     const gridContainer = document.getElementById('stroop-grid');
     const timerDisplay = document.getElementById('timer');
@@ -16,6 +17,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let recognition = null;
     let currentIndex = 0; // For voice mode
     let gridData = []; // To store cell data { char, colorName, element }
+    let audioContext = null;
+    let mediaStream = null;
     
     // Characters: "红橙黄绿青蓝紫"
     const chars = ['红', '橙', '黄', '绿', '青', '蓝', '紫'];
@@ -105,6 +108,7 @@ document.addEventListener('DOMContentLoaded', () => {
             startGame();
         }
     });
+    stopBtn.addEventListener('click', stopGame);
 
     function startGame() {
         if (!gridData.length) {
@@ -120,9 +124,8 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         startTimer();
-        startBtn.textContent = "停止计时";
-        startBtn.classList.remove('primary');
-        startBtn.classList.add('secondary'); // Visual feedback
+        startBtn.style.display = 'none';
+        stopBtn.style.display = 'inline-block';
         isPlaying = true;
 
         if (isVoiceMode) {
@@ -136,11 +139,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function stopGame() {
         stopTimer();
-        startBtn.textContent = "生成并开始";
         startBtn.style.display = 'inline-block';
         stopBtn.style.display = 'none';
-        startBtn.classList.remove('secondary');
-        startBtn.classList.add('primary');
         isPlaying = false;
         
         stopAudioContext();

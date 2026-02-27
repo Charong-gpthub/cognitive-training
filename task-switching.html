@@ -18,6 +18,10 @@
                     <span class="value" id="accuracy">0%</span>
                 </div>
                 <div class="score-item">
+                    <span class="label">进度</span>
+                    <span class="value" id="trial-progress">0/0</span>
+                </div>
+                <div class="score-item">
                     <span class="label">转换成本</span>
                     <span class="value" id="switch-cost">-- ms</span>
                 </div>
@@ -59,12 +63,17 @@
                         <span>右手食指</span>
                     </div>
 
-                    <button class="start-btn" onclick="startGame()">开始测试</button>
+                    <p id="practice-status" style="display:none; margin: 10px 0; color: #2ecc71; font-weight: 600;"></p>
+                    <div id="prestart-actions" style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+                        <button class="start-btn" onclick="startPractice()">先练习 12 题</button>
+                        <button class="start-btn" onclick="startGame()" style="background:#2ecc71;">直接正式测试</button>
+                    </div>
                 </div>
             </div>
 
             <!-- Game Display -->
             <div class="ts-display" id="ts-display" style="display: none;">
+                <div id="phase-label" style="margin-bottom: 8px; text-align: center; font-weight: 700; color: #2c3e50;">正式测试</div>
                 <!-- Legends -->
                 <div class="legends">
                     <div class="legend-left">

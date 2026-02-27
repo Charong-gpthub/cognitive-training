@@ -24,6 +24,14 @@
    基于 `glm5/汇总` 与 `gpt/汇总` 的总体整合文档。
 6. [06-picky-player-evaluation.md](06-picky-player-evaluation.md)  
    挑剔玩家视角的全量游戏首轮测评记录（访问覆盖、可完成性与追问清单）。
+7. [07-work-plan-from-glm5-eval-and-todo.md](07-work-plan-from-glm5-eval-and-todo.md)  
+   基于 GLM5 测评报告、对抗测试和待办清单的执行版工作计划（里程碑、验收与门禁）。
+8. [08-work-plan-v1.1-and-dev-kickoff.md](08-work-plan-v1.1-and-dev-kickoff.md)  
+   基于待办 v1.1 的最新执行计划与本周开发启动清单。
+9. [09-self-test-report-after-p1-kickoff.md](09-self-test-report-after-p1-kickoff.md)  
+   开发启动后自测结果（语法、结构、巡检、脱敏），用于评审前核对。
+10. [10-glm5-game-specs-index.md](10-glm5-game-specs-index.md)  
+   GLM5 每个游戏说明文档镜像索引（`doc/glm5-game-specs`）。
 
 ## 源汇总镜像
 
@@ -33,6 +41,8 @@
    来源：`glm5/汇总/INDEX.md`
 2. [source-gpt-glm5-comprehensive.md](source-gpt-glm5-comprehensive.md)  
    来源：`gpt/汇总/GLM5_GPT_综合详细文档.md`
+3. `doc/glm5-game-specs/`  
+   来源：`glm5/modules/`（按目录结构镜像的游戏说明文档）
 
 ## 当前统一结论（摘要）
 
