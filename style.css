@@ -1110,3 +1110,84 @@ th {
     background: #bdc3c7;
     color: #2c3e50;
 }
+
+/* Task Switching Touch Buttons for Mobile */
+.ts-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    margin-top: 30px;
+    width: 100%;
+    max-width: 400px;
+}
+
+.ts-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 140px;
+    height: 100px;
+    border: none;
+    border-radius: 16px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    font-family: inherit;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+}
+
+.ts-btn:active {
+    transform: scale(0.95);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.ts-btn-a {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    color: white;
+}
+
+.ts-btn-a:active {
+    background: linear-gradient(135deg, #2980b9, #1f6dad);
+}
+
+.ts-btn-l {
+    background: linear-gradient(135deg, #e67e22, #d35400);
+    color: white;
+}
+
+.ts-btn-l:active {
+    background: linear-gradient(135deg, #d35400, #ba4a00);
+}
+
+.ts-btn-key {
+    font-size: 2.5rem;
+    font-weight: bold;
+    line-height: 1;
+}
+
+.ts-btn-label {
+    font-size: 0.75rem;
+    margin-top: 8px;
+    opacity: 0.9;
+}
+
+@media (max-width: 480px) {
+    .ts-buttons {
+        gap: 20px;
+    }
+    
+    .ts-btn {
+        width: 120px;
+        height: 85px;
+    }
+    
+    .ts-btn-key {
+        font-size: 2rem;
+    }
+    
+    .ts-btn-label {
+        font-size: 0.7rem;
+    }
+}

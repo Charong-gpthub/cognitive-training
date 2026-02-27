@@ -12,6 +12,7 @@ let responses = [];
 let isGameActive = false;
 let trialStartTime = 0;
 let lastTask = null;
+let canRespond = false;
 
 // DOM Elements
 const instructionOverlay = document.getElementById('instruction-overlay');
@@ -24,13 +25,18 @@ const switchCostDisplay = document.getElementById('switch-cost');
 
 // Event Listener for Keys
 document.addEventListener('keydown', (e) => {
-    if (!isGameActive) return;
+    if (!isGameActive || !canRespond) return;
     
     const key = e.key.toLowerCase();
     if (key === 'a' || key === 'l') {
         handleResponse(key);
     }
 });
+
+function handleButtonClick(key) {
+    if (!isGameActive || !canRespond) return;
+    handleResponse(key);
+}
 
 function startGame() {
     isGameActive = true;
@@ -93,12 +99,14 @@ function runTrial() {
     stimulusNumber.textContent = trial.number;
     stimulusNumber.style.visibility = 'visible';
     
+    canRespond = true;
     trialStartTime = Date.now();
 }
 
 function handleResponse(key) {
-    if (!isGameActive) return;
+    if (!isGameActive || !canRespond) return;
     
+    canRespond = false;
     const rt = Date.now() - trialStartTime;
     // Prevent accidental double taps or too fast responses
     if (rt < 100) return;
