@@ -60,12 +60,21 @@ function renderTable(dateKey) {
     emptyHint.textContent = "";
     sessions.forEach((session) => {
         const row = document.createElement("tr");
-        row.innerHTML = `
-            <td>${toLocaleTime(session.finishedAt)}</td>
-            <td>${session.gameName}</td>
-            <td>${formatDuration(session.durationMs || 0)}</td>
-            <td>${metricsText(session)}</td>
-        `;
+        const timeCell = document.createElement("td");
+        const gameCell = document.createElement("td");
+        const durationCell = document.createElement("td");
+        const metricsCell = document.createElement("td");
+
+        // Use textContent to avoid DOM injection from persisted values.
+        timeCell.textContent = toLocaleTime(session.finishedAt);
+        gameCell.textContent = String(session.gameName || "");
+        durationCell.textContent = formatDuration(session.durationMs || 0);
+        metricsCell.textContent = metricsText(session);
+
+        row.appendChild(timeCell);
+        row.appendChild(gameCell);
+        row.appendChild(durationCell);
+        row.appendChild(metricsCell);
         body.appendChild(row);
     });
 }

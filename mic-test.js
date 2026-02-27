@@ -1,5 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     const toggleBtn = document.getElementById('toggle-btn');
+    const stopBtn = document.getElementById('stop-btn');
     const statusText = document.getElementById('status-text');
     const micIcon = document.getElementById('mic-icon');
     const transcriptDisplay = document.getElementById('transcript');
@@ -17,6 +18,38 @@ document.addEventListener('DOMContentLoaded', () => {
     const isElectron = /Electron/.test(navigator.userAgent);
 
     toggleBtn.addEventListener('click', toggleTest);
+
+    function renderTranscript(finalTranscript, interimTranscript) {
+        transcriptDisplay.textContent = "";
+        const finalSpan = document.createElement("span");
+        finalSpan.style.color = "#2c3e50";
+        finalSpan.textContent = finalTranscript;
+        const interimSpan = document.createElement("span");
+        interimSpan.style.color = "#95a5a6";
+        interimSpan.textContent = interimTranscript;
+        transcriptDisplay.appendChild(finalSpan);
+        transcriptDisplay.appendChild(interimSpan);
+    }
+
+    function renderElectronOpenHint() {
+        statusText.textContent = "";
+        statusText.append("网络错误：桌面版缺少语音API密钥。");
+        statusText.appendChild(document.createElement("br"));
+
+        const link = document.createElement("a");
+        link.href = "#";
+        link.textContent = "在系统浏览器中打开";
+        link.addEventListener("click", (event) => {
+            event.preventDefault();
+            try {
+                const { shell } = require("electron");
+                shell.openPath(window.location.href);
+            } catch (_error) {
+                // Keep silent on non-electron runtime.
+            }
+        });
+        statusText.appendChild(link);
+    }
 
     function toggleTest() {
         if (isListening) {
@@ -44,7 +77,7 @@ document.addEventListener('DOMContentLoaded', () => {
         startAudioContext();
     }
 
-    function stopTest() {
+    function stopTest(options = {}) {
         toggleBtn.textContent = "开始测试";
         toggleBtn.style.display = 'inline-block';
         stopBtn.style.display = 'none';
@@ -63,7 +96,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         micIcon.classList.remove('active');
-        statusText.textContent = "测试已停止";
+        if (!options.keepStatus) {
+            statusText.textContent = "测试已停止";
+        }
         volumeBar.style.width = "0%";
     }
 
@@ -90,8 +125,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     interimTranscript += event.results[i][0].transcript;
                 }
             }
-            
-            transcriptDisplay.innerHTML = `<span style="color:#2c3e50">${finalTranscript}</span><span style="color:#95a5a6">${interimTranscript}</span>`;
+
+            renderTranscript(finalTranscript, interimTranscript);
         };
 
         recognition.onerror = (event) => {
@@ -107,19 +142,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 alert(msg);
                 stopTest();
             } else if (event.error === 'network' && isElectron) {
-                 statusText.innerHTML = "网络错误：桌面版缺少语音API密钥。<br><a href='#' id='open-browser-mic-link'>在系统浏览器中打开</a>";
-                 setTimeout(() => {
-                     const link = document.getElementById('open-browser-mic-link');
-                     if (link) {
-                         link.onclick = (e) => {
-                             e.preventDefault();
-                             const { shell } = require('electron');
-                             shell.openPath(window.location.href);
-                         };
-                     }
-                 }, 100);
-                 stopTest();
-                 return; // Avoid overwriting statusText below
+                renderElectronOpenHint();
+                stopTest({ keepStatus: true });
+                return; // Avoid overwriting statusText below
             }
             
             statusText.textContent = msg;

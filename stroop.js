@@ -38,6 +38,40 @@ document.addEventListener('DOMContentLoaded', () => {
         { name: '紫', hex: '#9b59b6' }
     ];
 
+    function renderTranscript(displayFinal, displayInterim) {
+        if (!transcriptDisplay) return;
+        transcriptDisplay.textContent = "";
+        const finalSpan = document.createElement("span");
+        finalSpan.style.color = "#2c3e50";
+        finalSpan.textContent = displayFinal;
+        const interimSpan = document.createElement("span");
+        interimSpan.style.color = "#95a5a6";
+        interimSpan.textContent = displayInterim;
+        transcriptDisplay.appendChild(finalSpan);
+        transcriptDisplay.appendChild(interimSpan);
+    }
+
+    function renderOpenInBrowserHint(linkId) {
+        voiceStatus.textContent = "";
+        voiceStatus.append("⚠️ 桌面版暂不支持云端语音识别。");
+        voiceStatus.appendChild(document.createElement("br"));
+
+        const link = document.createElement("a");
+        link.id = linkId;
+        link.href = "#";
+        link.textContent = "在浏览器中打开";
+        link.addEventListener("click", (event) => {
+            event.preventDefault();
+            try {
+                const { shell } = require("electron");
+                shell.openPath(window.location.href);
+            } catch (_error) {
+                alert("无法打开浏览器，请手动复制文件路径到 Chrome/Edge 中打开。");
+            }
+        });
+        voiceStatus.appendChild(link);
+    }
+
     // Mode switching
     modeRadios.forEach(radio => {
         radio.addEventListener('change', (e) => {
@@ -57,25 +91,10 @@ document.addEventListener('DOMContentLoaded', () => {
             transcriptDisplay.textContent = "等待语音输入...";
             
             if (isElectron) {
-                voiceStatus.innerHTML = "⚠️ 桌面版暂不支持云端语音识别。<br>请点击 <a href='#' id='open-browser-link'>在浏览器中打开</a> 以使用语音功能。";
+                renderOpenInBrowserHint("open-browser-link");
                 voiceStatus.className = "voice-status";
                 voiceStatus.style.height = "auto";
                 voiceStatus.style.color = "#e67e22";
-                
-                setTimeout(() => {
-                    const link = document.getElementById('open-browser-link');
-                    if (link) {
-                        link.onclick = (e) => {
-                            e.preventDefault();
-                            try {
-                                const { shell } = require('electron');
-                                shell.openPath(window.location.href);
-                            } catch (err) {
-                                alert("无法打开浏览器，请手动复制文件路径到 Chrome/Edge 中打开。");
-                            }
-                        };
-                    }
-                }, 100);
             } else {
                 voiceStatus.textContent = "请点击“开始”并允许麦克风权限";
                 voiceStatus.className = "voice-status";
@@ -264,9 +283,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     displayInterim += event.results[i][0].transcript;
                 }
             }
-            if (transcriptDisplay) {
-                transcriptDisplay.innerHTML = `<span style="color:#2c3e50">${displayFinal}</span><span style="color:#95a5a6">${displayInterim}</span>`;
-            }
+            renderTranscript(displayFinal, displayInterim);
 
             // Loop for Game Logic (New results only)
             for (let i = event.resultIndex; i < event.results.length; ++i) {
@@ -288,19 +305,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 stopGame();
             } else if (event.error === 'network') {
                 if (isElectron) {
-                    voiceStatus.innerHTML = "⚠️ 网络错误：桌面版缺少语音API密钥。<br>请点击 <a href='#' id='open-browser-error-link'>在浏览器中打开</a> 使用。";
-                    setTimeout(() => {
-                         const link = document.getElementById('open-browser-error-link');
-                         if (link) {
-                             link.onclick = (e) => {
-                                 e.preventDefault();
-                                 try {
-                                     const { shell } = require('electron');
-                                     shell.openPath(window.location.href);
-                                 } catch(err) {}
-                             };
-                         }
-                    }, 100);
+                    voiceStatus.textContent = "";
+                    voiceStatus.append("⚠️ 网络错误：桌面版缺少语音API密钥。");
+                    voiceStatus.appendChild(document.createElement("br"));
+                    const link = document.createElement("a");
+                    link.href = "#";
+                    link.textContent = "在浏览器中打开";
+                    link.addEventListener("click", (e) => {
+                        e.preventDefault();
+                        try {
+                            const { shell } = require("electron");
+                            shell.openPath(window.location.href);
+                        } catch (_err) {
+                            // ignore
+                        }
+                    });
+                    voiceStatus.appendChild(link);
                 } else {
                     voiceStatus.textContent = "网络错误，无法连接语音服务";
                 }
