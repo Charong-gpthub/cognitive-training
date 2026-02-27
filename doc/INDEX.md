@@ -22,6 +22,8 @@
    执行路线、发布门槛与检查清单。
 5. [05-overall-merged-from-glm5-gpt.md](05-overall-merged-from-glm5-gpt.md)  
    基于 `glm5/汇总` 与 `gpt/汇总` 的总体整合文档。
+6. [06-picky-player-evaluation.md](06-picky-player-evaluation.md)  
+   挑剔玩家视角的全量游戏首轮测评记录（访问覆盖、可完成性与追问清单）。
 
 ## 源汇总镜像
 
