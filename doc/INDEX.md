@@ -5,10 +5,10 @@
 本系列文档基于以下两类来源整理：
 
 1. 意见来源（融合建议）  
-   `C:\Users\Administrator\Documents\trae_projects\20260226work001\gpt\汇总\GLM5_GPT_综合详细文档.md`
+   `gpt/汇总/GLM5_GPT_综合详细文档.md`（离线来源）
 2. 最新资料来源（当前基线）  
-   `C:\Users\Administrator\Documents\trae_projects\20260226work001\glm5\汇总\`  
-   重点文件：`C:\Users\Administrator\Documents\trae_projects\20260226work001\glm5\汇总\INDEX.md`
+   `glm5/汇总/`（离线来源）  
+   重点文件：`glm5/汇总/INDEX.md`
 
 ## 阅读顺序
 
@@ -32,4 +32,4 @@
 
 - 版本：`v1.0`
 - 生成日期：`2026-02-27`
-- 适用范围：`20260226work001/glm5` 与 `20260226work001/gpt` 文档体系融合
+- 适用范围：`glm5` 与 `gpt` 文档体系融合
