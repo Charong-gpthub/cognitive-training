@@ -253,6 +253,10 @@ a {
 .card-report:hover .card-icon { background: #34495e; color: white; }
 .card-report:hover .tag { background: #ebedef; color: #34495e; }
 
+.card-doc-center .card-icon { color: #1d4ed8; }
+.card-doc-center:hover .card-icon { background: #1d4ed8; color: white; }
+.card-doc-center:hover .tag { background: #eaf2ff; color: #1d4ed8; }
+
 .card-prisoner-dilemma .card-icon { color: #2c3e50; }
 .card-prisoner-dilemma:hover .card-icon { background: #2c3e50; color: white; }
 .card-prisoner-dilemma:hover .tag { background: #ebedef; color: #2c3e50; }

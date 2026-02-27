@@ -377,6 +377,15 @@ export const sections = [
                 icon: "fas fa-chart-line",
                 cardClass: "card-report",
                 status: "active"
+            },
+            {
+                title: "文档中心",
+                tag: "文档查阅",
+                desc: "查看 GLM5/GPT 综合文档系列，包含口径、映射、模板规范与发布门禁。",
+                href: "doc/index.html",
+                icon: "fas fa-book-open",
+                cardClass: "card-doc-center",
+                status: "active"
             }
         ]
     }
