@@ -32,6 +32,8 @@
    开发启动后自测结果（语法、结构、巡检、脱敏），用于评审前核对。
 10. [10-glm5-game-specs-index.md](10-glm5-game-specs-index.md)  
    GLM5 每个游戏说明文档镜像索引（`doc/glm5-game-specs`）。
+11. [11-back-button-standard.md](11-back-button-standard.md)  
+   游戏页面返回按钮统一规范（命名、结构、位置与验收标准）。
 
 ## 源汇总镜像
 

@@ -9,7 +9,8 @@
 </head>
 <body>
     <div class="container">
-        <header>
+        <header class="with-back-link">
+            <a href="index.html" class="back-btn page-header-back"><span aria-hidden="true">←</span><span>返回主页</span></a>
             <h1>注意力集中训练</h1>
             <p>中国科学院心理研究所大脑机能灵敏度测试工具复刻版</p>
         </header>
@@ -95,10 +96,6 @@
             <p>评级: <span id="final-grade"></span></p>
             <button id="restart-btn" class="btn primary">确定</button>
         </div>
-    </div>
-
-    <div style="position: fixed; top: 10px; left: 10px;">
-        <a href="index.html" class="btn secondary" style="text-decoration: none; padding: 8px 16px;">&larr; 返回主页</a>
     </div>
 
     <script src="focus.js"></script>

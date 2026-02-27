@@ -394,6 +394,19 @@ header p {
     background: #edf5fd;
 }
 
+/* Back Navigation Standard */
+header.with-back-link {
+    position: relative;
+    padding-top: 4px;
+    min-height: 50px;
+}
+
+.page-header-back {
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
 .score-board {
     display: flex;
     gap: 20px;
@@ -1235,6 +1248,19 @@ th {
 
 /* Responsive */
 @media (max-width: 768px) {
+    header.with-back-link {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .page-header-back {
+        position: static;
+        align-self: flex-start;
+        margin-bottom: 6px;
+    }
+
     .hub-wrapper {
         padding: 14px;
     }
