@@ -22,7 +22,9 @@ document.addEventListener('DOMContentLoaded', () => {
     let isPlaying = false;
     let isShowingSequence = false;
     let isBackwardMode = false;
-    let blockCount = 9; // Standard Corsi is usually 9 blocks
+    let blockCount = 9;
+    let levelErrorCount = 0;
+    let maxErrorsPerLevel = 1;
 
     // Audio context for sound feedback
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -144,7 +146,7 @@ document.addEventListener('DOMContentLoaded', () => {
             let idx;
             do {
                 idx = Math.floor(Math.random() * blockCount);
-            } while (idx === lastIdx); // Avoid immediate repetition for clarity
+            } while (idx === lastIdx);
             sequence.push(idx);
             lastIdx = idx;
         }
@@ -166,7 +168,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             highlightBlock(sequence[i]);
             i++;
-        }, 1000); // 1 second interval
+        }, 1000);
     }
 
     function highlightBlock(index) {
@@ -185,43 +187,48 @@ document.addEventListener('DOMContentLoaded', () => {
         const block = e.target;
         const index = parseInt(block.dataset.index);
         
-        // User feedback
         block.classList.add('user-active');
         playSound(660, 'triangle', 0.1);
         setTimeout(() => block.classList.remove('user-active'), 200);
         
         userSequence.push(index);
         
-        // Check correctness immediately
         const step = userSequence.length - 1;
         let expectedIndex;
         
         if (isBackwardMode) {
-            // In backward mode, 1st click matches last item of sequence
             expectedIndex = sequence[sequence.length - 1 - step];
         } else {
-            // In forward mode, 1st click matches 1st item of sequence
             expectedIndex = sequence[step];
         }
 
         if (index !== expectedIndex) {
-            // Wrong click
             block.classList.add('error');
             playSound(150, 'sawtooth', 0.3);
-            messageDisplay.textContent = "错误!";
-            endGame();
+            
+            levelErrorCount++;
+            
+            if (levelErrorCount > maxErrorsPerLevel) {
+                messageDisplay.textContent = "错误两次，测试结束!";
+                endGame();
+            } else {
+                messageDisplay.textContent = "错误! 同级再试一次...";
+                setTimeout(() => {
+                    block.classList.remove('error');
+                    startRound();
+                }, 1500);
+            }
             return;
         }
 
-        // Check if round complete
         if (userSequence.length === sequence.length) {
-            // Round success
             score += currentLevel * 10;
             scoreDisplay.textContent = score;
             messageDisplay.textContent = "正确! 难度升级...";
             playSound(880, 'sine', 0.2);
             setTimeout(() => playSound(1100, 'sine', 0.2), 150);
             
+            levelErrorCount = 0;
             currentLevel++;
             levelDisplay.textContent = currentLevel;
             
