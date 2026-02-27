@@ -20,6 +20,17 @@
    模板、指标和数据记录的统一规范。
 4. [04-roadmap-and-quality-gates.md](04-roadmap-and-quality-gates.md)  
    执行路线、发布门槛与检查清单。
+5. [05-overall-merged-from-glm5-gpt.md](05-overall-merged-from-glm5-gpt.md)  
+   基于 `glm5/汇总` 与 `gpt/汇总` 的总体整合文档。
+
+## 源汇总镜像
+
+以下文档已从源目录镜像到当前 `doc/`，可直接在仓库内查阅：
+
+1. [source-glm5-summary-index.md](source-glm5-summary-index.md)  
+   来源：`glm5/汇总/INDEX.md`
+2. [source-gpt-glm5-comprehensive.md](source-gpt-glm5-comprehensive.md)  
+   来源：`gpt/汇总/GLM5_GPT_综合详细文档.md`
 
 ## 当前统一结论（摘要）
 
