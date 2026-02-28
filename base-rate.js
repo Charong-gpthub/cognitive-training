@@ -1,16 +1,20 @@
-const questions = [
-    { baseRate: 1, sensitivity: 95, specificity: 90 },
-    { baseRate: 2, sensitivity: 92, specificity: 88 },
-    { baseRate: 5, sensitivity: 90, specificity: 90 },
-    { baseRate: 10, sensitivity: 85, specificity: 85 },
-    { baseRate: 20, sensitivity: 90, specificity: 80 },
-    { baseRate: 30, sensitivity: 88, specificity: 75 }
+const ALL_QUESTIONS = [
+    { id: "br-1", baseRate: 1, sensitivity: 95, specificity: 90 },
+    { id: "br-2", baseRate: 2, sensitivity: 92, specificity: 88 },
+    { id: "br-3", baseRate: 5, sensitivity: 90, specificity: 90 },
+    { id: "br-4", baseRate: 10, sensitivity: 85, specificity: 85 },
+    { id: "br-5", baseRate: 20, sensitivity: 90, specificity: 80 },
+    { id: "br-6", baseRate: 30, sensitivity: 88, specificity: 75 }
 ];
+const CONTENT_VERSION = "base-rate-v2-seeded";
 
 let index = 0;
 let correctCount = 0;
 let neglectCount = 0;
 let sessionStartedAt = null;
+let sessionSeed = "";
+let sessionQuestions = [];
+let questionOrder = [];
 
 const startScreen = document.getElementById("start-screen");
 const panel = document.getElementById("br-panel");
@@ -29,7 +33,7 @@ function posterior(baseRate, sensitivity, specificity) {
     return Math.round((numerator / denominator) * 100);
 }
 
-function buildOptions(correctValue, heuristicValue) {
+function buildOptions(correctValue, heuristicValue, rng) {
     const set = new Set([correctValue, heuristicValue]);
     const candidates = [1, 3, 5, 8, 12, 15, 20, 25, 35, 45, 55, 65, 75, 85, 95];
 
@@ -39,24 +43,48 @@ function buildOptions(correctValue, heuristicValue) {
         }
         set.add(candidate);
     }
-    return Array.from(set).sort((a, b) => a - b);
+
+    const options = Array.from(set);
+    if (window.SeededRandom) {
+        return window.SeededRandom.shuffleInPlace(options, rng);
+    }
+    return options.sort((a, b) => a - b);
+}
+
+function buildSessionQuestions() {
+    const seeded = window.SeededRandom;
+    sessionSeed = seeded ? seeded.createSessionSeed("base-rate") : `base-rate-${Date.now()}`;
+    const rng = seeded ? seeded.createRngFromSeed(sessionSeed) : Math.random;
+    const ordered = seeded
+        ? seeded.pickShuffled(ALL_QUESTIONS, rng, ALL_QUESTIONS.length)
+        : ALL_QUESTIONS.slice();
+
+    questionOrder = ordered.map((item) => item.id);
+    sessionQuestions = ordered.map((item) => {
+        const correctValue = posterior(item.baseRate, item.sensitivity, item.specificity);
+        const heuristicValue = item.sensitivity;
+        return {
+            ...item,
+            correctValue,
+            heuristicValue,
+            options: buildOptions(correctValue, heuristicValue, rng)
+        };
+    });
 }
 
 function updateBoard() {
     const answered = index;
     const acc = answered === 0 ? 0 : Math.round((correctCount / answered) * 100);
     const neglectRate = answered === 0 ? 0 : Math.round((neglectCount / answered) * 100);
+    const total = sessionQuestions.length || ALL_QUESTIONS.length;
 
-    document.getElementById("progress").textContent = `${answered}/${questions.length}`;
+    document.getElementById("progress").textContent = `${answered}/${total}`;
     document.getElementById("accuracy").textContent = `${acc}%`;
     document.getElementById("neglect-rate").textContent = `${neglectRate}%`;
 }
 
 function renderQuestion() {
-    const q = questions[index];
-    const correctValue = posterior(q.baseRate, q.sensitivity, q.specificity);
-    const heuristicValue = q.sensitivity;
-    const options = buildOptions(correctValue, heuristicValue);
+    const q = sessionQuestions[index];
 
     questionCard.innerHTML = `
         <p><strong>场景 ${index + 1}</strong></p>
@@ -66,19 +94,22 @@ function renderQuestion() {
     `;
 
     optionsEl.innerHTML = "";
-    options.forEach((value) => {
+    q.options.forEach((value) => {
         const btn = document.createElement("button");
         btn.className = "btn primary";
         btn.type = "button";
         btn.textContent = `${value}%`;
-        btn.addEventListener("click", () => answer(value, correctValue, heuristicValue));
+        btn.addEventListener("click", () => answer(value));
         optionsEl.appendChild(btn);
     });
 
     feedbackEl.textContent = "";
 }
 
-function answer(chosen, correctValue, heuristicValue) {
+function answer(chosen) {
+    const q = sessionQuestions[index];
+    const correctValue = q.correctValue;
+    const heuristicValue = q.heuristicValue;
     const isCorrect = chosen === correctValue;
     if (isCorrect) {
         correctCount += 1;
@@ -93,7 +124,7 @@ function answer(chosen, correctValue, heuristicValue) {
     index += 1;
     updateBoard();
 
-    if (index >= questions.length) {
+    if (index >= sessionQuestions.length) {
         finish();
         return;
     }
@@ -102,7 +133,7 @@ function answer(chosen, correctValue, heuristicValue) {
 }
 
 function finish() {
-    const total = questions.length;
+    const total = sessionQuestions.length;
     const acc = Math.round((correctCount / total) * 100);
     const neglectRate = Math.round((neglectCount / total) * 100);
 
@@ -126,7 +157,11 @@ function finish() {
             finishedAt: new Date(),
             metrics: {
                 accuracy: acc,
-                neglectRate
+                neglectRate,
+                seed: sessionSeed,
+                contentVersion: CONTENT_VERSION,
+                questionOrder,
+                optionOrder: sessionQuestions.map((item) => ({ id: item.id, options: item.options }))
             }
         });
     }
@@ -140,6 +175,7 @@ function startGame() {
     correctCount = 0;
     neglectCount = 0;
     sessionStartedAt = new Date();
+    buildSessionQuestions();
     startScreen.style.display = "none";
     panel.style.display = "block";
     resultModal.style.display = "none";

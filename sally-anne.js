@@ -1,61 +1,76 @@
-const ITEMS = [
+const ALL_ITEMS = [
     {
+        id: "sa-1",
         q: "小明把玩具放进蓝盒子后离开。小红把玩具移到红盒子。小明回来后会先找哪里？",
         options: ["蓝盒子", "红盒子"],
         answer: 0
     },
     {
+        id: "sa-2",
         q: "老师把钥匙放在抽屉。学生离开后同学把钥匙放到书包。老师回来会先找哪里？",
         options: ["抽屉", "书包"],
         answer: 0
     },
     {
+        id: "sa-3",
         q: "妈妈把蛋糕放在冰箱。爸爸趁她不在放到餐桌。妈妈回来会先看哪里？",
         options: ["冰箱", "餐桌"],
         answer: 0
     },
     {
+        id: "sa-4",
         q: "阿强看见篮球在柜子里。阿丽偷偷挪到门后。阿强会先找哪里？",
         options: ["柜子", "门后"],
         answer: 0
     },
     {
+        id: "sa-5",
         q: "小李把伞放在门边。朋友移到阳台。小李回来会先去哪里找？",
         options: ["门边", "阳台"],
         answer: 0
     },
     {
+        id: "sa-6",
         q: "管理员把卡片放进文件夹。实习生改放到信封。管理员会先找哪里？",
         options: ["文件夹", "信封"],
         answer: 0
     },
     {
+        id: "sa-7",
         q: "小周把耳机放在书架。弟弟挪到床头。小周回来会先找哪里？",
         options: ["书架", "床头"],
         answer: 0
     },
     {
+        id: "sa-8",
         q: "队长把哨子放在背包。队员改放口袋。队长会先找哪里？",
         options: ["背包", "口袋"],
         answer: 0
     },
     {
+        id: "sa-9",
         q: "工程师把U盘放在左抽屉。同事挪到右抽屉。工程师会先找哪里？",
         options: ["左抽屉", "右抽屉"],
         answer: 0
     },
     {
+        id: "sa-10",
         q: "店员把零钱放收银盒。老板换到保险柜。店员回来会先找哪里？",
         options: ["收银盒", "保险柜"],
         answer: 0
     }
 ];
+const CONTENT_VERSION = "sally-anne-v2-seeded";
 
 let index = 0;
 let correctCount = 0;
 let totalRt = 0;
 let shownAt = 0;
 let sessionStartedAt = null;
+let sessionSeed = "";
+let sessionItems = [];
+let itemOrder = [];
+let optionOrder = [];
 
 const startScreen = document.getElementById("start-screen");
 const panel = document.getElementById("sa-panel");
@@ -67,13 +82,39 @@ const feedback = document.getElementById("feedback");
 function updateBoard() {
     const answered = index;
     const avgRt = answered === 0 ? 0 : Math.round(totalRt / answered);
-    document.getElementById("progress").textContent = String(index + 1);
+    document.getElementById("progress").textContent = String(Math.min(index + 1, sessionItems.length));
     document.getElementById("correct").textContent = String(correctCount);
     document.getElementById("avg-rt").textContent = `${avgRt}ms`;
 }
 
+function buildSessionItems() {
+    const seeded = window.SeededRandom;
+    sessionSeed = seeded ? seeded.createSessionSeed("sally-anne") : `sally-anne-${Date.now()}`;
+    const rng = seeded ? seeded.createRngFromSeed(sessionSeed) : Math.random;
+    const baseList = seeded
+        ? seeded.pickShuffled(ALL_ITEMS, rng, ALL_ITEMS.length)
+        : ALL_ITEMS.slice();
+
+    itemOrder = baseList.map((item) => item.id);
+    optionOrder = [];
+
+    sessionItems = baseList.map((item) => {
+        const order = [0, 1];
+        if (rng() < 0.5) {
+            order.reverse();
+        }
+        optionOrder.push({ id: item.id, order: order.slice() });
+        return {
+            id: item.id,
+            q: item.q,
+            options: order.map((optIndex) => item.options[optIndex]),
+            answer: order.indexOf(item.answer)
+        };
+    });
+}
+
 function renderQuestion() {
-    const item = ITEMS[index];
+    const item = sessionItems[index];
     questionEl.textContent = item.q;
     optionsEl.innerHTML = "";
     item.options.forEach((text, optionIndex) => {
@@ -89,13 +130,13 @@ function renderQuestion() {
 }
 
 function choose(optionIndex) {
-    if (index >= ITEMS.length) {
+    if (index >= sessionItems.length) {
         return;
     }
     const rt = Math.round(performance.now() - shownAt);
     totalRt += rt;
 
-    const item = ITEMS[index];
+    const item = sessionItems[index];
     const correct = optionIndex === item.answer;
     if (correct) {
         correctCount += 1;
@@ -105,7 +146,7 @@ function choose(optionIndex) {
     }
 
     index += 1;
-    if (index >= ITEMS.length) {
+    if (index >= sessionItems.length) {
         finish();
         return;
     }
@@ -116,7 +157,7 @@ function choose(optionIndex) {
 }
 
 function finish() {
-    const total = ITEMS.length;
+    const total = sessionItems.length;
     const accuracy = Math.round((correctCount / total) * 100);
     const avgRt = Math.round(totalRt / total);
     const errors = total - correctCount;
@@ -136,7 +177,11 @@ function finish() {
                 total,
                 correct: correctCount,
                 accuracy,
-                avgReactionMs: avgRt
+                avgReactionMs: avgRt,
+                seed: sessionSeed,
+                contentVersion: CONTENT_VERSION,
+                itemOrder,
+                optionOrder
             }
         });
     }
@@ -150,6 +195,7 @@ function startGame() {
     correctCount = 0;
     totalRt = 0;
     sessionStartedAt = new Date();
+    buildSessionItems();
 
     feedback.textContent = "";
     renderQuestion();
