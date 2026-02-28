@@ -1,6 +1,7 @@
 const TOTAL_ROUNDS = 20;
 const HISTORY_SIZE = 6;
 const STREAK_THRESHOLD = 3;
+const CONTENT_VERSION = "gambler-fallacy-v2-seeded";
 
 let history = [];
 let round = 0;
@@ -8,6 +9,10 @@ let correct = 0;
 let streakContextCount = 0;
 let antiStreakChoiceCount = 0;
 let sessionStartedAt = null;
+let sessionSeed = "";
+let rng = Math.random;
+let initialHistory = [];
+let trialLog = [];
 
 const startScreen = document.getElementById("start-screen");
 const panel = document.getElementById("gf-panel");
@@ -16,7 +21,7 @@ const feedbackEl = document.getElementById("feedback");
 const resultModal = document.getElementById("result-modal");
 
 function randomCoin() {
-    return Math.random() < 0.5 ? "H" : "T";
+    return rng() < 0.5 ? "H" : "T";
 }
 
 function initHistory() {
@@ -24,6 +29,7 @@ function initHistory() {
     for (let i = 0; i < HISTORY_SIZE; i += 1) {
         history.push(randomCoin());
     }
+    initialHistory = history.slice();
 }
 
 function getTailStreak() {
@@ -63,6 +69,11 @@ function startGame() {
     streakContextCount = 0;
     antiStreakChoiceCount = 0;
     sessionStartedAt = new Date();
+    trialLog = [];
+
+    const seeded = window.SeededRandom;
+    sessionSeed = seeded ? seeded.createSessionSeed("gambler-fallacy") : `gambler-fallacy-${Date.now()}`;
+    rng = seeded ? seeded.createRngFromSeed(sessionSeed) : Math.random;
     initHistory();
 
     startScreen.style.display = "none";
@@ -89,6 +100,14 @@ function choose(prediction) {
     }
 
     const outcome = randomCoin();
+    trialLog.push({
+        round: round + 1,
+        prediction,
+        outcome,
+        tail: last,
+        tailStreak: streak
+    });
+
     if (prediction === outcome) {
         correct += 1;
         feedbackEl.textContent = `本轮结果: ${outcome}，预测正确。`;
@@ -129,7 +148,11 @@ function finish() {
             finishedAt: new Date(),
             metrics: {
                 accuracy: acc,
-                antiRate
+                antiRate,
+                seed: sessionSeed,
+                contentVersion: CONTENT_VERSION,
+                initialHistory,
+                trials: trialLog
             }
         });
     }

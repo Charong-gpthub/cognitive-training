@@ -1,17 +1,21 @@
-const FIGURES = [
-    "<svg width='180' height='110' viewBox='0 0 180 110'><circle cx='90' cy='55' r='28' fill='none' stroke='#2c3e50' stroke-width='4'/></svg>",
-    "<svg width='180' height='110' viewBox='0 0 180 110'><path d='M30 70 L90 20 L150 70 Z' fill='none' stroke='#2c3e50' stroke-width='4'/></svg>",
-    "<svg width='180' height='110' viewBox='0 0 180 110'><rect x='45' y='28' width='90' height='54' rx='8' fill='none' stroke='#2c3e50' stroke-width='4'/></svg>",
-    "<svg width='180' height='110' viewBox='0 0 180 110'><path d='M40 75 C70 20,110 20,140 75' fill='none' stroke='#2c3e50' stroke-width='4'/></svg>",
-    "<svg width='180' height='110' viewBox='0 0 180 110'><path d='M40 55 H140 M90 20 V90' fill='none' stroke='#2c3e50' stroke-width='4'/></svg>",
-    "<svg width='180' height='110' viewBox='0 0 180 110'><path d='M50 30 L130 80 M130 30 L50 80' fill='none' stroke='#2c3e50' stroke-width='4'/></svg>"
+const ALL_FIGURES = [
+    { id: "ttct-1", svg: "<svg width='180' height='110' viewBox='0 0 180 110'><circle cx='90' cy='55' r='28' fill='none' stroke='#2c3e50' stroke-width='4'/></svg>" },
+    { id: "ttct-2", svg: "<svg width='180' height='110' viewBox='0 0 180 110'><path d='M30 70 L90 20 L150 70 Z' fill='none' stroke='#2c3e50' stroke-width='4'/></svg>" },
+    { id: "ttct-3", svg: "<svg width='180' height='110' viewBox='0 0 180 110'><rect x='45' y='28' width='90' height='54' rx='8' fill='none' stroke='#2c3e50' stroke-width='4'/></svg>" },
+    { id: "ttct-4", svg: "<svg width='180' height='110' viewBox='0 0 180 110'><path d='M40 75 C70 20,110 20,140 75' fill='none' stroke='#2c3e50' stroke-width='4'/></svg>" },
+    { id: "ttct-5", svg: "<svg width='180' height='110' viewBox='0 0 180 110'><path d='M40 55 H140 M90 20 V90' fill='none' stroke='#2c3e50' stroke-width='4'/></svg>" },
+    { id: "ttct-6", svg: "<svg width='180' height='110' viewBox='0 0 180 110'><path d='M50 30 L130 80 M130 30 L50 80' fill='none' stroke='#2c3e50' stroke-width='4'/></svg>" }
 ];
+const CONTENT_VERSION = "torrance-creative-v2-seeded";
 
 let index = 0;
 let responses = [];
 let elapsed = 0;
 let timer = null;
 let sessionStartedAt = null;
+let sessionSeed = "";
+let sessionFigures = [];
+let figureOrder = [];
 
 const startScreen = document.getElementById("start-screen");
 const panel = document.getElementById("ttct-panel");
@@ -19,6 +23,18 @@ const resultModal = document.getElementById("result-modal");
 const figureEl = document.getElementById("figure");
 const titleInput = document.getElementById("title-input");
 const descInput = document.getElementById("desc-input");
+
+function buildSessionFigures() {
+    const seeded = window.SeededRandom;
+    sessionSeed = seeded ? seeded.createSessionSeed("torrance-creative") : `torrance-creative-${Date.now()}`;
+    const rng = seeded ? seeded.createRngFromSeed(sessionSeed) : Math.random;
+    const ordered = seeded
+        ? seeded.pickShuffled(ALL_FIGURES, rng, ALL_FIGURES.length)
+        : ALL_FIGURES.slice();
+
+    sessionFigures = ordered.map((item) => ({ ...item }));
+    figureOrder = ordered.map((item) => item.id);
+}
 
 function words(text) {
     return String(text || "")
@@ -34,20 +50,31 @@ function updateBoard() {
 }
 
 function renderFigure() {
-    figureEl.innerHTML = FIGURES[index];
+    const figure = sessionFigures[index];
+    if (!figure) {
+        return;
+    }
+
+    figureEl.innerHTML = figure.svg;
     titleInput.value = "";
     descInput.value = "";
     updateBoard();
 }
 
 function nextFigure() {
+    const currentFigure = sessionFigures[index];
+    if (!currentFigure) {
+        return;
+    }
+
     responses.push({
+        figureId: currentFigure.id,
         title: titleInput.value.trim(),
         desc: descInput.value.trim()
     });
 
     index += 1;
-    if (index >= FIGURES.length) {
+    if (index >= sessionFigures.length) {
         finish();
         return;
     }
@@ -58,7 +85,7 @@ function finish() {
     if (timer) {
         clearInterval(timer);
     }
-    const total = FIGURES.length;
+    const total = sessionFigures.length || ALL_FIGURES.length;
     const completed = responses.filter((item) => item.title && item.desc).length;
     const completionRate = Math.round((completed / total) * 100);
     const avgDescLength = completed === 0
@@ -88,7 +115,10 @@ function finish() {
                 items: total,
                 completionRate,
                 avgDescriptionLength: avgDescLength,
-                titleDiversity
+                titleDiversity,
+                seed: sessionSeed,
+                contentVersion: CONTENT_VERSION,
+                figureOrder
             }
         });
     }
@@ -102,6 +132,7 @@ function startGame() {
     responses = [];
     elapsed = 0;
     sessionStartedAt = new Date();
+    buildSessionFigures();
 
     if (timer) {
         clearInterval(timer);

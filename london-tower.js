@@ -1,11 +1,12 @@
 const PEG_CAPACITY = [3, 2, 1];
-const PROBLEMS = [
-    { start: [["red", "blue"], ["green"], []], goal: [["green"], ["red"], ["blue"]], optimal: 3 },
-    { start: [["red", "green"], ["blue"], []], goal: [["blue"], ["green"], ["red"]], optimal: 4 },
-    { start: [["blue", "green"], ["red"], []], goal: [["red", "blue"], ["green"], []], optimal: 3 },
-    { start: [["red"], ["green", "blue"], []], goal: [["blue"], ["red"], ["green"]], optimal: 4 },
-    { start: [["green"], ["red"], ["blue"]], goal: [["red", "green"], [], ["blue"]], optimal: 3 }
+const ALL_PROBLEMS = [
+    { id: "tol-1", start: [["red", "blue"], ["green"], []], goal: [["green"], ["red"], ["blue"]], optimal: 3 },
+    { id: "tol-2", start: [["red", "green"], ["blue"], []], goal: [["blue"], ["green"], ["red"]], optimal: 4 },
+    { id: "tol-3", start: [["blue", "green"], ["red"], []], goal: [["red", "blue"], ["green"], []], optimal: 3 },
+    { id: "tol-4", start: [["red"], ["green", "blue"], []], goal: [["blue"], ["red"], ["green"]], optimal: 4 },
+    { id: "tol-5", start: [["green"], ["red"], ["blue"]], goal: [["red", "green"], [], ["blue"]], optimal: 3 }
 ];
+const CONTENT_VERSION = "london-tower-v2-seeded";
 
 let problemIndex = 0;
 let playerState = null;
@@ -16,6 +17,9 @@ let optimalSolved = 0;
 let timer = null;
 let elapsed = 0;
 let sessionStartedAt = null;
+let sessionSeed = "";
+let sessionProblems = [];
+let problemOrder = [];
 
 const startScreen = document.getElementById("start-screen");
 const panel = document.getElementById("tol-panel");
@@ -26,6 +30,22 @@ const hint = document.getElementById("hint");
 
 function cloneState(state) {
     return state.map((peg) => [...peg]);
+}
+
+function buildSessionProblems() {
+    const seeded = window.SeededRandom;
+    sessionSeed = seeded ? seeded.createSessionSeed("london-tower") : `london-tower-${Date.now()}`;
+    const rng = seeded ? seeded.createRngFromSeed(sessionSeed) : Math.random;
+    const ordered = seeded
+        ? seeded.pickShuffled(ALL_PROBLEMS, rng, ALL_PROBLEMS.length)
+        : ALL_PROBLEMS.slice();
+
+    problemOrder = ordered.map((item) => item.id);
+    sessionProblems = ordered.map((item) => ({ ...item }));
+}
+
+function getCurrentProblem() {
+    return sessionProblems[problemIndex];
 }
 
 function equalState(a, b) {
@@ -68,13 +88,18 @@ function createPegElement(pegBalls, index, interactive) {
 }
 
 function render() {
+    const problem = getCurrentProblem();
+    if (!problem) {
+        return;
+    }
+
     playerPegsEl.innerHTML = "";
     goalPegsEl.innerHTML = "";
 
     playerState.forEach((pegBalls, index) => {
         playerPegsEl.appendChild(createPegElement(pegBalls, index, true));
     });
-    PROBLEMS[problemIndex].goal.forEach((pegBalls, index) => {
+    problem.goal.forEach((pegBalls, index) => {
         goalPegsEl.appendChild(createPegElement(pegBalls, index, false));
     });
     updateBoard();
@@ -101,6 +126,11 @@ function moveBall(from, to) {
 }
 
 function onPegClick(index) {
+    const problem = getCurrentProblem();
+    if (!problem) {
+        return;
+    }
+
     if (selectedPeg === null) {
         selectedPeg = index;
         render();
@@ -119,25 +149,30 @@ function onPegClick(index) {
         return;
     }
 
-    const solved = equalState(playerState, PROBLEMS[problemIndex].goal);
+    const solved = equalState(playerState, problem.goal);
     if (solved) {
         onSolvedProblem();
     }
 }
 
 function onSolvedProblem() {
+    const problem = getCurrentProblem();
+    if (!problem) {
+        return;
+    }
+
     solvedMoves.push(moves);
-    if (moves <= PROBLEMS[problemIndex].optimal) {
+    if (moves <= problem.optimal) {
         optimalSolved += 1;
     }
 
     problemIndex += 1;
-    if (problemIndex >= PROBLEMS.length) {
+    if (problemIndex >= sessionProblems.length) {
         finish();
         return;
     }
 
-    playerState = cloneState(PROBLEMS[problemIndex].start);
+    playerState = cloneState(getCurrentProblem().start);
     moves = 0;
     selectedPeg = null;
     hint.textContent = "下一题开始。";
@@ -148,7 +183,7 @@ function finish() {
     if (timer) {
         clearInterval(timer);
     }
-    const totalProblems = PROBLEMS.length;
+    const totalProblems = sessionProblems.length || ALL_PROBLEMS.length;
     const avgMoves = (solvedMoves.reduce((sum, value) => sum + value, 0) / totalProblems).toFixed(1);
     const optimalRate = Math.round((optimalSolved / totalProblems) * 100);
 
@@ -166,7 +201,10 @@ function finish() {
                 problems: totalProblems,
                 avgMoves: Number(avgMoves),
                 optimalRate,
-                timeSec: elapsed
+                timeSec: elapsed,
+                seed: sessionSeed,
+                contentVersion: CONTENT_VERSION,
+                problemOrder
             }
         });
     }
@@ -183,8 +221,9 @@ function startGame() {
     selectedPeg = null;
     elapsed = 0;
     sessionStartedAt = new Date();
+    buildSessionProblems();
 
-    playerState = cloneState(PROBLEMS[0].start);
+    playerState = cloneState(sessionProblems[0].start);
     hint.textContent = "点击一个柱子选择球，再点击目标柱移动。";
 
     if (timer) {

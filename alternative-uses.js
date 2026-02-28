@@ -1,11 +1,19 @@
-const PROMPTS = ["砖头", "回形针", "塑料瓶"];
+const ALL_PROMPTS = [
+    { id: "aut-1", text: "砖头" },
+    { id: "aut-2", text: "回形针" },
+    { id: "aut-3", text: "塑料瓶" }
+];
 const ROUND_SECONDS = 60;
+const CONTENT_VERSION = "alternative-uses-v2-seeded";
 
 let round = 0;
 let timeLeft = ROUND_SECONDS;
 let timer = null;
 let responses = [];
 let sessionStartedAt = null;
+let sessionSeed = "";
+let sessionPrompts = [];
+let promptOrder = [];
 
 const startScreen = document.getElementById("start-screen");
 const panel = document.getElementById("aut-panel");
@@ -38,8 +46,18 @@ function updateBoard() {
     document.getElementById("uses-count").textContent = String(currentUsesCount());
 }
 
+function buildSessionPrompts() {
+    const seeded = window.SeededRandom;
+    sessionSeed = seeded ? seeded.createSessionSeed("alternative-uses") : `alternative-uses-${Date.now()}`;
+    const rng = seeded ? seeded.createRngFromSeed(sessionSeed) : Math.random;
+    sessionPrompts = seeded
+        ? seeded.pickShuffled(ALL_PROMPTS, rng, ALL_PROMPTS.length)
+        : ALL_PROMPTS.slice();
+    promptOrder = sessionPrompts.map((item) => item.id);
+}
+
 function loadRound() {
-    promptText.textContent = PROMPTS[round];
+    promptText.textContent = sessionPrompts[round].text;
     usesInput.value = "";
     timeLeft = ROUND_SECONDS;
     updateBoard();
@@ -48,12 +66,13 @@ function loadRound() {
 function nextRound() {
     const lines = parseLines(usesInput.value);
     responses.push({
-        prompt: PROMPTS[round],
+        promptId: sessionPrompts[round].id,
+        prompt: sessionPrompts[round].text,
         uses: lines
     });
 
     round += 1;
-    if (round >= PROMPTS.length) {
+    if (round >= sessionPrompts.length) {
         finish();
         return;
     }
@@ -85,10 +104,13 @@ function finish() {
             finishedAt: new Date(),
             score: totalUses,
             metrics: {
-                prompts: PROMPTS.length,
+                prompts: sessionPrompts.length,
                 fluency: totalUses,
                 lexicalDiversity: diversity,
-                avgUseLength: avgLength
+                avgUseLength: avgLength,
+                seed: sessionSeed,
+                contentVersion: CONTENT_VERSION,
+                promptOrder
             }
         });
     }
@@ -101,6 +123,7 @@ function startGame() {
     round = 0;
     responses = [];
     sessionStartedAt = new Date();
+    buildSessionPrompts();
 
     if (timer) {
         clearInterval(timer);

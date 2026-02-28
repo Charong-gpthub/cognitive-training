@@ -1,5 +1,6 @@
 const TOTAL_ROUNDS = 20;
 const TOTAL_PIE = 10;
+const CONTENT_VERSION = "ultimatum-game-v2-seeded";
 
 let offers = [];
 let round = 0;
@@ -10,6 +11,8 @@ let fairTotal = 0;
 let unfairAccepted = 0;
 let unfairTotal = 0;
 let sessionStartedAt = null;
+let sessionSeed = "";
+let decisions = [];
 
 const startScreen = document.getElementById("start-screen");
 const panel = document.getElementById("ug-panel");
@@ -17,11 +20,14 @@ const resultModal = document.getElementById("result-modal");
 const offerText = document.getElementById("offer-text");
 const logEl = document.getElementById("log");
 
-function shuffledOffers() {
+function shuffledOffers(rng) {
     const base = [1, 2, 2, 3, 3, 4, 4, 4, 5, 5, 6, 2, 3, 4, 5, 1, 6, 7, 3, 4];
     const arr = [...base];
+    if (window.SeededRandom) {
+        return window.SeededRandom.shuffleInPlace(arr, rng);
+    }
     for (let i = arr.length - 1; i > 0; i -= 1) {
-        const j = Math.floor(Math.random() * (i + 1));
+        const j = Math.floor(rng() * (i + 1));
         [arr[i], arr[j]] = [arr[j], arr[i]];
     }
     return arr;
@@ -53,6 +59,7 @@ function decide(accept) {
         return;
     }
 
+    const roundNo = round + 1;
     const offer = offers[round];
     const fair = offer >= 4;
     if (fair) {
@@ -72,6 +79,12 @@ function decide(accept) {
             unfairAccepted += 1;
         }
     }
+
+    decisions.push({
+        round: roundNo,
+        offer,
+        accept
+    });
 
     round += 1;
     appendLog(`第 ${round} 回合：提议 ${offer}/${TOTAL_PIE}，你${accept ? "接受" : "拒绝"}，收益 +${gain}`);
@@ -103,7 +116,11 @@ function finish() {
                 rounds: TOTAL_ROUNDS,
                 earnings,
                 fairAcceptanceRate: fairRate,
-                unfairAcceptanceRate: unfairRate
+                unfairAcceptanceRate: unfairRate,
+                seed: sessionSeed,
+                contentVersion: CONTENT_VERSION,
+                offerOrder: offers.slice(),
+                decisions
             }
         });
     }
@@ -113,7 +130,6 @@ function finish() {
 }
 
 function startGame() {
-    offers = shuffledOffers();
     round = 0;
     earnings = 0;
     acceptedCount = 0;
@@ -122,6 +138,12 @@ function startGame() {
     unfairAccepted = 0;
     unfairTotal = 0;
     sessionStartedAt = new Date();
+    decisions = [];
+
+    const seeded = window.SeededRandom;
+    sessionSeed = seeded ? seeded.createSessionSeed("ultimatum-game") : `ultimatum-game-${Date.now()}`;
+    const rng = seeded ? seeded.createRngFromSeed(sessionSeed) : Math.random;
+    offers = shuffledOffers(rng);
 
     logEl.innerHTML = "";
     updateBoard();

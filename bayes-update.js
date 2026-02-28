@@ -1,18 +1,22 @@
-const cases = [
-    { priorA: 10, pEgivenA: 80, pEgivenB: 20 },
-    { priorA: 20, pEgivenA: 70, pEgivenB: 30 },
-    { priorA: 40, pEgivenA: 85, pEgivenB: 40 },
-    { priorA: 30, pEgivenA: 60, pEgivenB: 20 },
-    { priorA: 50, pEgivenA: 75, pEgivenB: 35 },
-    { priorA: 15, pEgivenA: 90, pEgivenB: 45 },
-    { priorA: 35, pEgivenA: 65, pEgivenB: 25 },
-    { priorA: 60, pEgivenA: 55, pEgivenB: 15 }
+const ALL_CASES = [
+    { id: "bu-1", priorA: 10, pEgivenA: 80, pEgivenB: 20 },
+    { id: "bu-2", priorA: 20, pEgivenA: 70, pEgivenB: 30 },
+    { id: "bu-3", priorA: 40, pEgivenA: 85, pEgivenB: 40 },
+    { id: "bu-4", priorA: 30, pEgivenA: 60, pEgivenB: 20 },
+    { id: "bu-5", priorA: 50, pEgivenA: 75, pEgivenB: 35 },
+    { id: "bu-6", priorA: 15, pEgivenA: 90, pEgivenB: 45 },
+    { id: "bu-7", priorA: 35, pEgivenA: 65, pEgivenB: 25 },
+    { id: "bu-8", priorA: 60, pEgivenA: 55, pEgivenB: 15 }
 ];
+const CONTENT_VERSION = "bayes-update-v2-seeded";
 
 let index = 0;
 let approxCorrect = 0;
 let totalAbsError = 0;
 let sessionStartedAt = null;
+let sessionSeed = "";
+let sessionCases = [];
+let caseOrder = [];
 
 const startScreen = document.getElementById("start-screen");
 const panel = document.getElementById("bayes-panel");
@@ -30,18 +34,29 @@ function calcPosterior(priorA, pEgivenA, pEgivenB) {
     return Math.round((numerator / denominator) * 100);
 }
 
+function buildSessionCases() {
+    const seeded = window.SeededRandom;
+    sessionSeed = seeded ? seeded.createSessionSeed("bayes-update") : `bayes-update-${Date.now()}`;
+    const rng = seeded ? seeded.createRngFromSeed(sessionSeed) : Math.random;
+    sessionCases = seeded
+        ? seeded.pickShuffled(ALL_CASES, rng, ALL_CASES.length)
+        : ALL_CASES.slice();
+    caseOrder = sessionCases.map((item) => item.id);
+}
+
 function updateLiveBoard() {
     const answered = index;
     const acc = answered === 0 ? 0 : Math.round((approxCorrect / answered) * 100);
     const mae = answered === 0 ? 0 : Math.round(totalAbsError / answered);
+    const total = sessionCases.length || ALL_CASES.length;
 
-    document.getElementById("progress").textContent = `${answered}/${cases.length}`;
+    document.getElementById("progress").textContent = `${answered}/${total}`;
     document.getElementById("accuracy").textContent = `${acc}%`;
     document.getElementById("mae").textContent = `${mae}%`;
 }
 
 function renderCase() {
-    const item = cases[index];
+    const item = sessionCases[index];
     const priorB = 100 - item.priorA;
     questionEl.innerHTML = `
         <p><strong>题目 ${index + 1}</strong></p>
@@ -60,7 +75,7 @@ function submitAnswer() {
         return;
     }
 
-    const item = cases[index];
+    const item = sessionCases[index];
     const correct = calcPosterior(item.priorA, item.pEgivenA, item.pEgivenB);
     const error = Math.abs(raw - correct);
     totalAbsError += error;
@@ -72,7 +87,7 @@ function submitAnswer() {
     index += 1;
     updateLiveBoard();
 
-    if (index >= cases.length) {
+    if (index >= sessionCases.length) {
         finish();
         return;
     }
@@ -81,8 +96,9 @@ function submitAnswer() {
 }
 
 function finish() {
-    const acc = Math.round((approxCorrect / cases.length) * 100);
-    const mae = Math.round(totalAbsError / cases.length);
+    const total = sessionCases.length;
+    const acc = Math.round((approxCorrect / total) * 100);
+    const mae = Math.round(totalAbsError / total);
 
     document.getElementById("result-acc").textContent = `${acc}%`;
     document.getElementById("result-mae").textContent = `${mae}%`;
@@ -103,7 +119,10 @@ function finish() {
             finishedAt: new Date(),
             metrics: {
                 approxAccuracy: acc,
-                mae
+                mae,
+                seed: sessionSeed,
+                contentVersion: CONTENT_VERSION,
+                caseOrder
             }
         });
     }
@@ -117,6 +136,7 @@ function startGame() {
     approxCorrect = 0;
     totalAbsError = 0;
     sessionStartedAt = new Date();
+    buildSessionCases();
     startScreen.style.display = "none";
     panel.style.display = "block";
     resultModal.style.display = "none";

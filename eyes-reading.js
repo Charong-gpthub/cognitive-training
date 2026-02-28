@@ -1,23 +1,28 @@
-const ITEMS = [
-    { emotion: "警惕", leftBrow: -18, rightBrow: 18, pupilX: 36, options: ["平静", "警惕", "悲伤", "困惑"] },
-    { emotion: "愤怒", leftBrow: -25, rightBrow: 25, pupilX: 30, options: ["兴奋", "愤怒", "放松", "尴尬"] },
-    { emotion: "悲伤", leftBrow: 20, rightBrow: -20, pupilX: 30, options: ["悲伤", "惊讶", "专注", "高兴"] },
-    { emotion: "惊讶", leftBrow: 0, rightBrow: 0, pupilX: 30, options: ["惊讶", "怀疑", "厌烦", "羞愧"] },
-    { emotion: "怀疑", leftBrow: -8, rightBrow: 8, pupilX: 24, options: ["怀疑", "满足", "悲伤", "自豪"] },
-    { emotion: "专注", leftBrow: -6, rightBrow: 6, pupilX: 32, options: ["专注", "沮丧", "紧张", "疲惫"] },
-    { emotion: "困惑", leftBrow: 15, rightBrow: 15, pupilX: 26, options: ["轻松", "困惑", "冷漠", "坚定"] },
-    { emotion: "紧张", leftBrow: -16, rightBrow: 16, pupilX: 28, options: ["愉快", "紧张", "平静", "困倦"] },
-    { emotion: "冷漠", leftBrow: 2, rightBrow: -2, pupilX: 30, options: ["惊喜", "冷漠", "恐惧", "兴奋"] },
-    { emotion: "坚定", leftBrow: -12, rightBrow: 12, pupilX: 34, options: ["害怕", "坚定", "悲伤", "尴尬"] },
-    { emotion: "疲惫", leftBrow: 12, rightBrow: -12, pupilX: 32, options: ["活跃", "疲惫", "得意", "挑衅"] },
-    { emotion: "平静", leftBrow: 0, rightBrow: 0, pupilX: 30, options: ["平静", "愤怒", "惊慌", "厌恶"] }
+const ALL_ITEMS = [
+    { id: "eyes-1", emotion: "警惕", leftBrow: -18, rightBrow: 18, pupilX: 36, options: ["平静", "警惕", "悲伤", "困惑"] },
+    { id: "eyes-2", emotion: "愤怒", leftBrow: -25, rightBrow: 25, pupilX: 30, options: ["兴奋", "愤怒", "放松", "尴尬"] },
+    { id: "eyes-3", emotion: "悲伤", leftBrow: 20, rightBrow: -20, pupilX: 30, options: ["悲伤", "惊讶", "专注", "高兴"] },
+    { id: "eyes-4", emotion: "惊讶", leftBrow: 0, rightBrow: 0, pupilX: 30, options: ["惊讶", "怀疑", "厌烦", "羞愧"] },
+    { id: "eyes-5", emotion: "怀疑", leftBrow: -8, rightBrow: 8, pupilX: 24, options: ["怀疑", "满足", "悲伤", "自豪"] },
+    { id: "eyes-6", emotion: "专注", leftBrow: -6, rightBrow: 6, pupilX: 32, options: ["专注", "沮丧", "紧张", "疲惫"] },
+    { id: "eyes-7", emotion: "困惑", leftBrow: 15, rightBrow: 15, pupilX: 26, options: ["轻松", "困惑", "冷漠", "坚定"] },
+    { id: "eyes-8", emotion: "紧张", leftBrow: -16, rightBrow: 16, pupilX: 28, options: ["愉快", "紧张", "平静", "困倦"] },
+    { id: "eyes-9", emotion: "冷漠", leftBrow: 2, rightBrow: -2, pupilX: 30, options: ["惊喜", "冷漠", "恐惧", "兴奋"] },
+    { id: "eyes-10", emotion: "坚定", leftBrow: -12, rightBrow: 12, pupilX: 34, options: ["害怕", "坚定", "悲伤", "尴尬"] },
+    { id: "eyes-11", emotion: "疲惫", leftBrow: 12, rightBrow: -12, pupilX: 32, options: ["活跃", "疲惫", "得意", "挑衅"] },
+    { id: "eyes-12", emotion: "平静", leftBrow: 0, rightBrow: 0, pupilX: 30, options: ["平静", "愤怒", "惊慌", "厌恶"] }
 ];
+const CONTENT_VERSION = "eyes-reading-v2-seeded";
 
 let index = 0;
 let correctCount = 0;
 let totalRt = 0;
 let shownAt = 0;
 let sessionStartedAt = null;
+let sessionSeed = "";
+let sessionItems = [];
+let itemOrder = [];
+let optionOrder = [];
 
 const startScreen = document.getElementById("start-screen");
 const panel = document.getElementById("eyes-panel");
@@ -25,11 +30,31 @@ const resultModal = document.getElementById("result-modal");
 const optionsEl = document.getElementById("options");
 const feedback = document.getElementById("feedback");
 
+function buildSessionItems() {
+    const seeded = window.SeededRandom;
+    sessionSeed = seeded ? seeded.createSessionSeed("eyes-reading") : `eyes-reading-${Date.now()}`;
+    const rng = seeded ? seeded.createRngFromSeed(sessionSeed) : Math.random;
+    const ordered = seeded
+        ? seeded.pickShuffled(ALL_ITEMS, rng, ALL_ITEMS.length)
+        : ALL_ITEMS.slice();
+
+    itemOrder = ordered.map((item) => item.id);
+    optionOrder = [];
+    sessionItems = ordered.map((item) => {
+        const options = item.options.slice();
+        if (seeded) {
+            seeded.shuffleInPlace(options, rng);
+        }
+        optionOrder.push({ id: item.id, options: options.slice() });
+        return { ...item, options };
+    });
+}
+
 function updateBoard() {
     const answered = index;
     const acc = answered === 0 ? 0 : Math.round((correctCount / answered) * 100);
     const avgRt = answered === 0 ? 0 : Math.round(totalRt / answered);
-    document.getElementById("progress").textContent = String(index + 1);
+    document.getElementById("progress").textContent = String(Math.min(index + 1, sessionItems.length));
     document.getElementById("acc").textContent = `${acc}%`;
     document.getElementById("avg-rt").textContent = `${avgRt}ms`;
 }
@@ -47,7 +72,7 @@ function applyFace(item) {
 }
 
 function renderQuestion() {
-    const item = ITEMS[index];
+    const item = sessionItems[index];
     applyFace(item);
     optionsEl.innerHTML = "";
     item.options.forEach((option) => {
@@ -62,10 +87,10 @@ function renderQuestion() {
 }
 
 function choose(option) {
-    if (index >= ITEMS.length) {
+    if (index >= sessionItems.length) {
         return;
     }
-    const item = ITEMS[index];
+    const item = sessionItems[index];
     const rt = Math.round(performance.now() - shownAt);
     totalRt += rt;
 
@@ -78,7 +103,7 @@ function choose(option) {
     }
 
     index += 1;
-    if (index >= ITEMS.length) {
+    if (index >= sessionItems.length) {
         finish();
         return;
     }
@@ -89,7 +114,7 @@ function choose(option) {
 }
 
 function finish() {
-    const total = ITEMS.length;
+    const total = sessionItems.length;
     const accuracy = Math.round((correctCount / total) * 100);
     const avgRt = Math.round(totalRt / total);
 
@@ -108,7 +133,11 @@ function finish() {
                 total,
                 correct: correctCount,
                 accuracy,
-                avgReactionMs: avgRt
+                avgReactionMs: avgRt,
+                seed: sessionSeed,
+                contentVersion: CONTENT_VERSION,
+                itemOrder,
+                optionOrder
             }
         });
     }
@@ -122,6 +151,7 @@ function startGame() {
     correctCount = 0;
     totalRt = 0;
     sessionStartedAt = new Date();
+    buildSessionItems();
 
     feedback.textContent = "";
     renderQuestion();
